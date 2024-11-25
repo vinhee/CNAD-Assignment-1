@@ -14,6 +14,14 @@ func Navbar() string {
     font-size: 2rem;
   }
 
+  .nav-link {
+    letter-spacing: 3px;
+    color: #543310;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    margin: 4px;
+  }
+
   .navbar-brand:hover {
     color: #232b47;
   }
@@ -47,24 +55,25 @@ func Navbar() string {
       <div class="collapse navbar-collapse" id="navbarExample01">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item active">
-            <a class="nav-link px-3" href="#!">Home</a>
+            <a class="nav-link px-3" href="/homepage">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link px-3" href="#!">Vehicle Service</a>
+            <a class="nav-link px-3" href="/vehiclepage">Vehicle Service</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link px-3" href="#!">Billing</a>
+            <a class="nav-link px-3" href="/billpage">Billing</a>
           </li>
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link pe-3" href="#!">
-              <i class="fab fa-user"></i>
+            <a class="nav-link pe-3" href="/login">
+              <i class="fa-solid fa-user"></i> Login
             </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
+  <script src="https://kit.fontawesome.com/13df13ab87.js" crossorigin="anonymous"></script>
     `
 }
