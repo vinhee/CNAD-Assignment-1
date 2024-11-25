@@ -1,9 +1,20 @@
 package Pages
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 )
+
+type user struct {
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	MemberTier int    `json:"memberTier"`
+}
 
 func Registerpage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -79,22 +90,22 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
             <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Register</h3>
 
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="form2Example18" class="form-control form-control-lg" />
-              <label class="form-label" for="form2Example18">Name</label>
+              <input type="name" id="name" name="userName" class="form-control form-control-lg" />
+              <label class="form-label" for="name">Name</label>
             </div>
 
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="form2Example28" class="form-control form-control-lg" />
-              <label class="form-label" for="form2Example28">Email Address</label>
+              <input type="email" id="email" name="userEmail" class="form-control form-control-lg" />
+              <label class="form-label" for="email">Email Address</label>
             </div>
 
 			<div data-mdb-input-init class="form-outline mb-4">
-              <input type="password" id="form2Example28" class="form-control form-control-lg" />
-              <label class="form-label" for="form2Example28">Password</label>
+              <input type="password" id="password" name="userPassword" class="form-control form-control-lg" />
+              <label class="form-label" for="password">Password</label>
             </div>
 
             <div class="pt-1 mb-4 loginLine">
-              <button data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="button">Register</button>
+              <button action="/register" method="POST" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="button">Register</button>
             </div>
 
             <p class="loginLine">Have an account? <a href="/login" class="link-info">Login here</a></p>
@@ -118,4 +129,61 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 	</html>
 `
 	fmt.Fprint(w, html)
+}
+
+func regUser(w http.ResponseWriter, r *http.Request) {
+	dbUser, dbPassword, dbHost, dbName := os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Println("Database connection error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	query := "SELECT * FROM Users"
+	results, err := db.Query(query)
+	if err != nil {
+		log.Println("Database query error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer results.Close()
+
+	userList := []user{}
+	for results.Next() {
+		var user user
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+			log.Println("Row scan error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		userList = append(userList, user)
+	}
+	if r.Method == "POST" {
+		var user user
+		r.ParseForm()
+		checkEmail := r.FormValue("email")
+
+		for _, checkCourse := range userList {
+			if checkCourse.Email == checkEmail {
+				fmt.Fprintf(w, "<div style=\"text-align: center;\"><h1>This email already has an account!</h1></div>")
+				return
+			}
+		}
+		user.Name = r.FormValue("name")
+		user.Email = r.FormValue("email")
+		user.Password = r.FormValue("password")
+
+		insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
+		_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "1")
+		if err != nil {
+			log.Println("Database insert error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "<div style=\"text-align: center;\"><h1>Account successfully created!</h1></div>")
+	}
+
 }
