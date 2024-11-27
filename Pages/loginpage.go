@@ -1,11 +1,68 @@
 package Pages
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Loginpage(w http.ResponseWriter, r *http.Request) {
+	var errMsg string
+	r.ParseForm()
+	log.Println("Parsed form values:", r.Form)
+	checkEmail := r.FormValue("userEmail")
+	checkPassword := r.FormValue("userPassword")
+
+	dbUser, dbPassword, dbHost, dbName := os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Println("Database connection error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	query := "SELECT * FROM Users"
+	results, err := db.Query(query)
+	if err != nil {
+		log.Println("Database query error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer results.Close()
+
+	userList := []user{}
+	for results.Next() {
+		var user user
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+			log.Println("Row scan error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		userList = append(userList, user)
+	}
+
+	userFound := false
+	if checkEmail != "" && checkPassword != "" {
+		for _, checkUser := range userList {
+			if checkUser.Email == checkEmail {
+				err := bcrypt.CompareHashAndPassword([]byte(checkUser.Password), []byte(checkPassword))
+				if err == nil {
+					userFound = true
+					http.Redirect(w, r, "/homepage", http.StatusSeeOther)
+				}
+			}
+		}
+		if !userFound {
+			errMsg = "Incorrect email/phone number or password, try again!"
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	html := `
 	<!DOCTYPE html>
@@ -71,25 +128,31 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 
         <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
 
-          <form style="width: 23rem;">
+          <form style="width: 23rem;" method="POST" action="/login">
 
             <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Login</h3>
+		`
+	if errMsg != "" {
+		html += "<p class=\"label\" style=\"color:red\">" + errMsg + "</p>"
+	}
+
+	html += `
 
 			<p class="label">Email Address/Phone Number</p>
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="email" class="form-control form-control-lg" />
+              <input type="email" id="email" name="userEmail" class="form-control form-control-lg" />
             </div>
 
 			<p class="label">Password</p>
 			<div data-mdb-input-init class="form-outline mb-4">
-              <input type="password" id="password" class="form-control form-control-lg" />
+              <input type="password" id="password" name="userPassword" class="form-control form-control-lg" />
             </div>
 
             <div class="pt-1 mb-4 loginLine">
-              <button data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="button">Log in</button>
+              <button data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="submit">Log in</button>
             </div>
 
-            <p class="loginLine">Don't have an account? <a href="/elecShare/register" class="link-info">Register here</a></p>
+            <p class="loginLine">Don't have an account? <a href="/register" class="link-info">Register here</a></p>
 
           </form>
 

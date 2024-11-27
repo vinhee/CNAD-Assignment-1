@@ -1,6 +1,6 @@
 package Pages
 
-func Navbar() string {
+func NavbarMember() string {
 	return `
   <head>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,8 +66,8 @@ func Navbar() string {
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link pe-3" href="/login">
-              <i class="fa-solid fa-user"></i> Login
+            <a class="nav-link pe-3" href="/profile">
+              <i class="fa-solid fa-user"></i>
             </a>
           </li>
         </ul>

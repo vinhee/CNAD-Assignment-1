@@ -10,6 +10,7 @@ import (
 	"regexp"
 
 	_ "github.com/go-sql-driver/mysql"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type user struct {
@@ -62,8 +63,8 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 		validNum := isPhoneNumber(checkEmail)
 
 		if validEmail || validNum {
-			for _, checkCourse := range userList {
-				if checkCourse.Email == checkEmail {
+			for _, checkUser := range userList {
+				if checkUser.Email == checkEmail {
 					errMsg = "This email/phone number already has an account!"
 				}
 			}
@@ -73,6 +74,14 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 		user.Email = checkEmail
 		user.Name = r.FormValue("userName")
 		user.Password = r.FormValue("userPassword")
+
+		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println("Hash error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		user.Password = string(hash)
 
 		insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
 		_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "Basic")
