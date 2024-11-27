@@ -34,18 +34,15 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 				padding: 0;
 			}
 			.form-control {
-				padding: 20px 15px 5px;
+				padding: 5px 15px 5px;
 				border: none;
 				outline: none; 
 				border-radius: 0.5rem; 
 			}
-			.form-label {
-				position: absolute;
-				top: 10px; 
-				left: 15px; 
-				background-color: white;
-				padding: 0 5px; 
-				z-index: 1;
+			.label {
+				color: #232b47;
+				margin-bottom: 5px;
+				margin-left: 5px;
 			}
 			.bg-image-vertical {
 				position: relative;
@@ -78,21 +75,21 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 
             <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Login</h3>
 
+			<p class="label">Email Address/Phone Number</p>
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="form2Example28" class="form-control form-control-lg" />
-              <label class="form-label" for="form2Example28">Email Address</label>
+              <input type="email" id="email" class="form-control form-control-lg" />
             </div>
 
+			<p class="label">Password</p>
 			<div data-mdb-input-init class="form-outline mb-4">
-              <input type="password" id="form2Example28" class="form-control form-control-lg" />
-              <label class="form-label" for="form2Example28">Password</label>
+              <input type="password" id="password" class="form-control form-control-lg" />
             </div>
 
             <div class="pt-1 mb-4 loginLine">
               <button data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="button">Log in</button>
             </div>
 
-            <p class="loginLine">Don't have an account? <a href="/register" class="link-info">Register here</a></p>
+            <p class="loginLine">Don't have an account? <a href="/elecShare/register" class="link-info">Register here</a></p>
 
           </form>
 
@@ -101,10 +98,10 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
       </div>
 		<div class="col-sm-6 px-0 d-none d-sm-block">
 				<img src="https://a.storyblok.com/f/85281/1080x1440/2af3cc39d1/how-do-you-charge-an-electric-car__article_v1_header_vertical_3-4_mobile.png"
-				alt="Login image" class="w-100 vh-100" style="object-fit: cover; object-position: right;">
-				</div>
-		</div>
-		</div>
+				alt="Login image" class="w-100 vh-100" style="object-fit: cover; object-position: right;"></img>
+	</div>
+	</div>
+	</div>
 	</section>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

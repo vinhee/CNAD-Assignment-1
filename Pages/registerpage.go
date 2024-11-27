@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/mail"
 	"os"
+	"regexp"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type user struct {
@@ -13,10 +17,75 @@ type user struct {
 	Name       string `json:"name"`
 	Email      string `json:"email"`
 	Password   string `json:"password"`
-	MemberTier int    `json:"memberTier"`
+	MemberTier string `json:"memberTier"`
 }
 
 func Registerpage(w http.ResponseWriter, r *http.Request) {
+	var errMsg string
+	var successfulMsg string
+	r.ParseForm()
+
+	dbUser, dbPassword, dbHost, dbName := os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Println("Database connection error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	query := "SELECT * FROM Users"
+	results, err := db.Query(query)
+	if err != nil {
+		log.Println("Database query error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer results.Close()
+
+	userList := []user{}
+	for results.Next() {
+		var user user
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+			log.Println("Row scan error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		userList = append(userList, user)
+	}
+	if r.Method == "POST" {
+		var user user
+		log.Println("Parsed form values:", r.Form)
+		checkEmail := r.FormValue("userEmail")
+		validEmail := isEmail(checkEmail)
+		validNum := isPhoneNumber(checkEmail)
+
+		if validEmail || validNum {
+			for _, checkCourse := range userList {
+				if checkCourse.Email == checkEmail {
+					errMsg = "This email/phone number already has an account!"
+				}
+			}
+		} else {
+			errMsg = "This email/phone number is invalid! Try again"
+		}
+		user.Email = checkEmail
+		user.Name = r.FormValue("userName")
+		user.Password = r.FormValue("userPassword")
+
+		insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
+		_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "Basic")
+		if err != nil {
+			log.Println("Database insert error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if errMsg == "" {
+			successfulMsg = "Account Created Successfully!"
+		}
+
+	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	html := `
 	<!DOCTYPE html>
@@ -49,6 +118,11 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 				border: none;
 				outline: none; 
 				border-radius: 0.5rem; 
+			}
+			.label {
+				color: #232b47;
+				margin-bottom: 5px;
+				margin-left: 5px;
 			}
 			.form-label {
 				position: absolute;
@@ -83,29 +157,40 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
     <div class="row">
 	<div class="col-sm-6 text-black">
 
-        <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+        <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-7 pt-xl-0 mt-xl-n5">
 
-          <form style="width: 23rem;">
+          <form style="width: 23rem;" method="POST" action="/register">
 
-            <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Register</h3>
+            <h3 class="fw-normal mb-3 pb-1" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Register</h3>
+		`
+	if successfulMsg != "" {
+		html += "<p class=\"label\" style=\"color:green\">" + successfulMsg + "</p>"
+	}
 
-            <div data-mdb-input-init class="form-outline mb-4">
+	html += `
+			<p class="label">Name</p>
+            <div data-mdb-input-init class="form-outline mb-2">
               <input type="name" id="name" name="userName" class="form-control form-control-lg" />
-              <label class="form-label" for="name">Name</label>
+            </div>
+		
+			<p class="label">Email Address/Phone Number</p>
+		`
+	if errMsg != "" {
+		html += "<p class=\"label\" style=\"color:red\">" + errMsg + "</p>"
+	}
+
+	html += `
+            <div data-mdb-input-init class="form-outline mb-2">
+              <input type="emailNum" id="email" name="userEmail" class="form-control form-control-lg" />
             </div>
 
-            <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="email" name="userEmail" class="form-control form-control-lg" />
-              <label class="form-label" for="email">Email Address</label>
-            </div>
-
-			<div data-mdb-input-init class="form-outline mb-4">
+			<p class="label">Password</p>
+			<div data-mdb-input-init class="form-outline mb-2">
               <input type="password" id="password" name="userPassword" class="form-control form-control-lg" />
-              <label class="form-label" for="password">Password</label>
             </div>
 
             <div class="pt-1 mb-4 loginLine">
-              <button action="/register" method="POST" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="button">Register</button>
+              <button action="/registerpage" method="POST" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="submit">Register</button>
             </div>
 
             <p class="loginLine">Have an account? <a href="/login" class="link-info">Login here</a></p>
@@ -117,7 +202,7 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
       </div>
 		<div class="col-sm-6 px-0 d-none d-sm-block">
 				<img src="https://a.storyblok.com/f/85281/1080x1440/2af3cc39d1/how-do-you-charge-an-electric-car__article_v1_header_vertical_3-4_mobile.png"
-				alt="Register image" class="w-100 vh-100" style="object-fit: cover; object-position: right;">
+				alt="Register image" class="w-100 vh-100" style="object-fit: cover; object-position: right;"></img>
 				</div>
 		</div>
 		</div>
@@ -131,59 +216,13 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html)
 }
 
-func regUser(w http.ResponseWriter, r *http.Request) {
-	dbUser, dbPassword, dbHost, dbName := os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME")
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Println("Database connection error:", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
+func isEmail(input string) bool {
+	_, err := mail.ParseAddress(input)
+	return err == nil
+}
 
-	query := "SELECT * FROM Users"
-	results, err := db.Query(query)
-	if err != nil {
-		log.Println("Database query error:", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	defer results.Close()
-
-	userList := []user{}
-	for results.Next() {
-		var user user
-		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
-			log.Println("Row scan error:", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		userList = append(userList, user)
-	}
-	if r.Method == "POST" {
-		var user user
-		r.ParseForm()
-		checkEmail := r.FormValue("email")
-
-		for _, checkCourse := range userList {
-			if checkCourse.Email == checkEmail {
-				fmt.Fprintf(w, "<div style=\"text-align: center;\"><h1>This email already has an account!</h1></div>")
-				return
-			}
-		}
-		user.Name = r.FormValue("name")
-		user.Email = r.FormValue("email")
-		user.Password = r.FormValue("password")
-
-		insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
-		_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "1")
-		if err != nil {
-			log.Println("Database insert error:", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprintf(w, "<div style=\"text-align: center;\"><h1>Account successfully created!</h1></div>")
-	}
-
+func isPhoneNumber(input string) bool {
+	phoneRegex := `^(9|8|6)\d{7}$`
+	re := regexp.MustCompile(phoneRegex)
+	return re.MatchString(input)
 }
