@@ -25,16 +25,36 @@ func Homepage(w http.ResponseWriter, r *http.Request) {
 			.form-group {
 				margin-bottom: 15px;
 			}
+			.bookBtn {
+				background-color: #232b47;
+				color: white;
+			}
+			.row {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-between;
+			}
+			.card {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+			}
+			.bg-image {
+				width: 100%; 
+				height: 200px; 
+				object-fit: cover;
+				object-position: center;
+			}
 		</style>
 	</head>
 	<body>
 	  ` + Navbar() + ` 
 		<div class="my-5">
 			<div class="container">
-			<section class="text-center">
-				<h4 class="mb-5"><strong>Rentable Cars</strong></h4>
+				<section class="text-center">
+					<h4 class="mb-5"><strong>Rentable Cars</strong></h4>
 
-				<div class="row">
+			<div class="row">
 				<div class="col-lg-4 col-md-12 mb-4">
 					<div class="card">
 					<div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
@@ -84,8 +104,41 @@ func Homepage(w http.ResponseWriter, r *http.Request) {
 				</div>
 			</div>
 		</div>
-		<div>
-
+		<div class="container">
+			<h2 style="text-center"><b>Benefits of joining us!</b></h2>
+			<h5>Basic</h5>
+			<ul>
+				<li>
+					Booking limit of 1 car
+				</li>
+				<li>
+					5 percent discount for hourly rates
+				</li>
+			</ul>
+			<h5>Premium</h5>
+			<ul>
+				<li>
+					Booking limit of 1 car
+				</li>
+				<li>
+					10 percent discount for hourly rates
+				</li>
+				<li>
+					Higher booking priority than Basic
+				</li>
+			</ul>
+			<h5>VIP</h5>
+			<ul>
+				<li>
+					Booking limit of 2 car
+				</li>
+				<li>
+					15 percent discount for hourly rates
+				</li>
+				<li>
+					Highest booking priority than other tiers
+				</li>
+			</ul>
 		</div>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

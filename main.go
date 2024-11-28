@@ -10,6 +10,7 @@ func main() {
 	http.HandleFunc("/homepage", Pages.Homepage)
 	http.HandleFunc("/register", Pages.Registerpage)
 	http.HandleFunc("/homemember", Pages.HomeMember)
+	http.HandleFunc("/logout", Pages.Logout)
 
 	http.ListenAndServe(":5000", nil)
 }

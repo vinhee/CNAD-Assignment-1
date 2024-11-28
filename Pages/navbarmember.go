@@ -71,7 +71,7 @@ func NavbarMember(userName string) string {
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pe-3" href="/homepage">
+            <a class="nav-link pe-3" href="/logout">
               Logout
             </a>
           </li>
