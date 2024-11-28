@@ -82,6 +82,7 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		user.Password = string(hash)
+		log.Printf(user.Password)
 
 		insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
 		_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "Basic")

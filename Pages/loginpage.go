@@ -1,14 +1,27 @@
 package Pages
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func generateSecretKey() string {
+	key := make([]byte, 32) // generates a random 32 byte
+	if _, err := rand.Read(key); err != nil {
+		panic(err)
+	}
+	return base64.StdEncoding.EncodeToString(key)
+}
+
+var store = sessions.NewCookieStore([]byte(generateSecretKey()))
 
 func Loginpage(w http.ResponseWriter, r *http.Request) {
 	var errMsg string
@@ -52,9 +65,14 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 		for _, checkUser := range userList {
 			if checkUser.Email == checkEmail {
 				err := bcrypt.CompareHashAndPassword([]byte(checkUser.Password), []byte(checkPassword))
+				log.Printf("%x", []byte(checkUser.Password))
+				log.Printf("%x", []byte(checkPassword))
 				if err == nil {
 					userFound = true
-					http.Redirect(w, r, "/homepage", http.StatusSeeOther)
+					session, _ := store.Get(r, "cookieName")
+					session.Values["userName"] = checkUser.Name
+					session.Save(r, w)
+					http.Redirect(w, r, "/homemember", http.StatusSeeOther)
 				}
 			}
 		}
@@ -140,7 +158,7 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 
 			<p class="label">Email Address/Phone Number</p>
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="email" name="userEmail" class="form-control form-control-lg" />
+              <input type="emailNum" id="email" name="userEmail" class="form-control form-control-lg" />
             </div>
 
 			<p class="label">Password</p>

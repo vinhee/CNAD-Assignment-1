@@ -7,6 +7,8 @@ import (
 
 func HomeMember(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	session, _ := store.Get(r, "cookieName")
+	userName := session.Values["userName"]
 
 	html := `
 	<!DOCTYPE html>
@@ -48,12 +50,11 @@ func HomeMember(w http.ResponseWriter, r *http.Request) {
 		</style>
 	</head>
 	<body>
-	  ` + NavbarMember() + ` 
+	  ` + NavbarMember(userName.(string)) + ` 
 		<div class="my-5">
 			<div class="container">
-			<!--Section: Content-->
 			<section class="text-center">
-				<h4 class="mb-5"><strong>Latest posts</strong></h4>
+				<h4 class="mb-5"><strong>Rentable Cars</strong></h4>
 
 				<div class="row">
 				<div class="col-lg-4 col-md-12 mb-4">
