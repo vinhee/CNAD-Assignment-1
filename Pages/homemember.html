@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
+	<title>ElecShare</title>
+	<style>
+		.container2 {
+			max-width: 600px;
+			margin: auto;
+		}
+		.form-group {
+			margin-bottom: 15px;
+		}
+		.bookBtn {
+			background-color: #232b47;
+			color: white;
+		}
+		.row {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+		}
+		.card {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+		.bg-image {
+			width: 100%; 
+			height: 200px; 
+			object-fit: cover;
+			object-position: center;
+		}
+	</style>
+</head>
+<body>
+	{{template "navMember" .}}
+	<div class="my-5">
+		<div class="container">
+		<section class="text-center">
+			<h4 class="mb-5"><strong>Rentable Cars</strong></h4>
+
+			<div class="row">
+			<div class="col-lg-4 col-md-12 mb-4">
+				<div class="card">
+				<div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
+					<img src="https://media.ed.edmunds-media.com/hyundai/ioniq-electric/2020/oem/2020_hyundai_ioniq-electric_4dr-hatchback_limited_fq_oem_1_1600.jpg" class="img-fluid" />
+					<div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title"><b>Hyundai IONIQ Electric</b></h5>
+					<p class="card-text">
+					Permanent magnet synchronous, single speed reduction gear.
+					</p>
+					<a href="/Cars/IONIQ" class="btn bookBtn" data-mdb-ripple-init><b>Book</b></a>
+				</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="card">
+				<div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
+					<img src="https://img.icarcdn.com/autospinn/body/000000207399_cfbae6fd_f7f1_4168_8bc5_5e00c809e59e.jpg" class="img-fluid" />
+					<div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title"><b>BYD E6</b></h5>
+					<p class="card-text">
+						AC permanent magnet synchronous motor
+					</p>
+					<a href="/Cars/BYDE6" class="btn bookBtn" data-mdb-ripple-init><b>Book</b></a>
+				</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="card">
+				<div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
+					<img src="https://www.bydauto.co.nz/storage/uploads/112972f5-aee9-4ddc-b1a7-19fb846a9818/model-page-banner-atto-3-2160x1185-q1-2024-02.jpg" class="img-fluid" />
+					<div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title"><b>BYD Atto 3</b></h5>
+					<p class="card-text">
+						Permanent magnet synchronous motor
+					</p>
+					<a href="Cars/BYDATTO" class="btn bookBtn" data-mdb-ripple-init><b>Book</b></a>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>	
+</body>
+</html>
