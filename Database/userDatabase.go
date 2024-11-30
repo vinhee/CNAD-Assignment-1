@@ -71,3 +71,30 @@ func InsertNewUser(user User) error {
 	}
 	return nil
 }
+
+func GetUserDetail(userEmail string) ([]User, error) {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return nil, err
+	}
+	defer db.Close()
+	query := "SELECT * FROM Users WHERE Email = ?"
+	results, err := db.Query(query, userEmail)
+	if err != nil {
+		log.Println("Database query error:", err)
+		return nil, err
+	}
+	defer results.Close()
+
+	userList := []User{}
+	for results.Next() {
+		var user User
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+			log.Println("Row scan error:", err)
+			return nil, err
+		}
+		userList = append(userList, user)
+	}
+	return userList, nil
+}

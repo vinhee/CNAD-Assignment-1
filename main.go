@@ -11,6 +11,7 @@ func main() {
 	http.HandleFunc("/register", Controller.Registerpage)
 	http.HandleFunc("/homemember", Controller.HomeMember)
 	http.HandleFunc("/logout", Controller.Logout)
+	http.HandleFunc("/profile", Controller.ProfilePage)
 
 	http.ListenAndServe(":5000", nil)
 }

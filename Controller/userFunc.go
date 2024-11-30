@@ -65,9 +65,12 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 					log.Printf("%x", []byte(checkPassword))
 					if err == nil {
 						userFound = true
-						session, _ := store.Get(r, "cookieName")
-						session.Values["userName"] = checkUser.Name
-						session.Save(r, w)
+						sessionName, _ := store.Get(r, "cookieName")
+						sessionName.Values["userName"] = checkUser.Name
+						sessionEmail, _ := store.Get(r, "cookieEmail")
+						sessionEmail.Values["userEmail"] = checkEmail
+						sessionName.Save(r, w)
+						sessionEmail.Save(r, w)
 						http.Redirect(w, r, "/homemember", http.StatusSeeOther)
 						return
 					}
@@ -259,6 +262,43 @@ func RegSuccess(w http.ResponseWriter, successMsg string, errMsg string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	log.Println("Successful message:", successMsg)
 	if err := tmpl.ExecuteTemplate(w, "RegPage", data); err != nil {
+		log.Println("Error executing template:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
+func ProfilePage(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("Pages/profilepage.html", "Pages/navbar.html")
+	if err != nil {
+		log.Println("Error parsing template:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	session, _ := store.Get(r, "cookieEmail")
+	userEmail, _ := session.Values["userEmail"].(string)
+	userList, err := database.GetUserDetail(userEmail)
+	var userName string
+	var userTier string
+	for _, checkUser := range userList {
+		if checkUser.Email == userEmail {
+			userName = checkUser.Name
+			userTier = checkUser.MemberTier
+		}
+	}
+
+	data := struct {
+		UserName  string
+		UserEmail string
+		UserTier  string
+		NavMember interface{}
+	}{
+		UserName:  userName,
+		UserEmail: userEmail,
+		UserTier:  userTier,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.ExecuteTemplate(w, "ProfPage", data); err != nil {
 		log.Println("Error executing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
