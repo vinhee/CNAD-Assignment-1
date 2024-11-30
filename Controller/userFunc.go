@@ -27,7 +27,7 @@ var store = sessions.NewCookieStore([]byte(generateSecretKey()))
 
 func Loginpage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("Pages/loginpage.html", "Pages/navbar.html")
+		tmpl, err := template.ParseFiles("Pages/UserManage/loginpage.html", "Pages/navbar.html")
 		if err != nil {
 			log.Println("Error executing template:", err)
 			http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -86,7 +86,7 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginError(w http.ResponseWriter, errMsg string) {
-	tmpl, err := template.ParseFiles("Pages/loginpage.html", "Pages/navbar.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/loginpage.html", "Pages/navbar.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -115,7 +115,7 @@ func HomeMember(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 
-	tmpl, err := template.ParseFiles("Pages/homemember.html", "Pages/navbarmember.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/homemember.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -138,7 +138,7 @@ func HomeMember(w http.ResponseWriter, r *http.Request) {
 
 func Registerpage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("Pages/registerpage.html", "Pages/navbar.html")
+		tmpl, err := template.ParseFiles("Pages/UserManage/registerpage.html", "Pages/navbar.html")
 		if err != nil {
 			log.Println("Error executing template:", err)
 			http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -218,7 +218,7 @@ func isPhoneNumber(input string) bool {
 }
 
 func RegError(w http.ResponseWriter, errMsg string, successMsg string) {
-	tmpl, err := template.ParseFiles("Pages/registerpage.html", "Pages/navbar.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/registerpage.html", "Pages/navbar.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -243,7 +243,7 @@ func RegError(w http.ResponseWriter, errMsg string, successMsg string) {
 }
 
 func RegSuccess(w http.ResponseWriter, successMsg string, errMsg string) {
-	tmpl, err := template.ParseFiles("Pages/registerpage.html", "Pages/navbar.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/registerpage.html", "Pages/navbar.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -268,7 +268,7 @@ func RegSuccess(w http.ResponseWriter, successMsg string, errMsg string) {
 }
 
 func ProfilePage(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("Pages/profilepage.html", "Pages/navbar.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/profilepage.html", "Pages/navbar.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
