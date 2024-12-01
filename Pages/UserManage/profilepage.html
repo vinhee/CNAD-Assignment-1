@@ -21,13 +21,14 @@
 <section class="vh-100" style="background-color: #f4f5f7;">
     <div class="container py-2 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col col-lg-6 mb-4 mb-lg-0">
+        <div class="col col-lg-8 mb-4 mb-lg-0">
           <div class="card mb-3" style="border-radius: .5rem;">
             <div class="row g-0">
               <div class="col-md-3 gradient-custom text-center"
                 style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
                 <i class="fa-solid fa-user img-fluid mt-5 mb-2" style="font-size: 80px;"></i>
                 <h5 class="label">{{.UserName}}</h5>
+                <h5 class="label my-2">{{.UserEmail}}</h5>
                 <a class="nav-link pe-3" href="/editprofile">
                     <i class="far fa-edit mb-5 label"></i> Edit
                 </a>
@@ -38,12 +39,12 @@
                   <hr class="mt-0 mb-4">
                   <div class="row pt-1">
                     <div class="col-6 mb-3">
-                      <h6 class="label"><b>Email</b></h6>
-                      <p class="text-muted label">{{.UserEmail}}</p>
-                    </div>
-                    <div class="col-6 mb-3">
                       <h6 class="label"><b>Membership Tier</b></h6>
                       <p class="text-muted label">{{.UserTier}}</p>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <h6 class="label"><b>Available Bookings</b></h6>
+                      <p class="text-muted label">{{.UserBooking}}</p>
                     </div>
                   </div>
                   <h6 class="label"><b>Rental History</b></h6>

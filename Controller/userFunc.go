@@ -278,21 +278,25 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 	userList, err := database.GetUserDetail(userEmail)
 	var userName string
 	var userTier string
+	var userBooking int
 	for _, checkUser := range userList {
 		if checkUser.Email == userEmail {
 			userName = checkUser.Name
 			userTier = checkUser.MemberTier
+			userBooking = checkUser.Bookings
 		}
 	}
 
 	data := struct {
-		UserName  string
-		UserEmail string
-		UserTier  string
+		UserName    string
+		UserEmail   string
+		UserTier    string
+		UserBooking int
 	}{
-		UserName:  userName,
-		UserEmail: userEmail,
-		UserTier:  userTier,
+		UserName:    userName,
+		UserEmail:   userEmail,
+		UserTier:    userTier,
+		UserBooking: userBooking,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

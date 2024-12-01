@@ -15,6 +15,7 @@ type User struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
 	MemberTier string `json:"memberTier"`
+	Bookings   int    `json:"booking"`
 }
 
 var db *sql.DB
@@ -47,7 +48,7 @@ func GetLoginUser() ([]User, error) {
 	userList := []User{}
 	for results.Next() {
 		var user User
-		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier, &user.Bookings); err != nil {
 			log.Println("Row scan error:", err)
 			return nil, err
 		}
@@ -63,8 +64,8 @@ func InsertNewUser(user User) error {
 		return err
 	}
 	defer db.Close()
-	insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier) VALUES (?, ?, ?, ?)"
-	_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "Basic")
+	insertQuery := "INSERT INTO Users (Name, Email, Password, MemberTier, Bookings) VALUES (?, ?, ?, ?, ?)"
+	_, err = db.Exec(insertQuery, user.Name, user.Email, user.Password, "Basic", 1)
 	if err != nil {
 		log.Println("Database insert error:", err)
 		return err
@@ -90,7 +91,7 @@ func GetUserDetail(userEmail string) ([]User, error) {
 	userList := []User{}
 	for results.Next() {
 		var user User
-		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier); err != nil {
+		if err := results.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier, &user.Bookings); err != nil {
 			log.Println("Row scan error:", err)
 			return nil, err
 		}
