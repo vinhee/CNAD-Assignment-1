@@ -25,6 +25,12 @@ func generateSecretKey() string {
 
 var store = sessions.NewCookieStore([]byte(generateSecretKey()))
 
+func Logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookieName")
+	session.Values["cookieName"] = nil
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
 func Loginpage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		tmpl, err := template.ParseFiles("Pages/UserManage/loginpage.html", "Pages/navbar.html")
