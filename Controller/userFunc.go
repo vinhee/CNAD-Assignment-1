@@ -193,7 +193,6 @@ func Registerpage(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			user.Password = string(hash)
-			log.Printf(user.Password)
 
 			if err := database.InsertNewUser(user); err != nil {
 				log.Println("Error inserting new user:", err)
@@ -268,7 +267,7 @@ func RegSuccess(w http.ResponseWriter, successMsg string, errMsg string) {
 }
 
 func ProfilePage(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("Pages/UserManage/profilepage.html", "Pages/navbar.html")
+	tmpl, err := template.ParseFiles("Pages/UserManage/profilepage.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -290,7 +289,6 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		UserName  string
 		UserEmail string
 		UserTier  string
-		NavMember interface{}
 	}{
 		UserName:  userName,
 		UserEmail: userEmail,
@@ -301,5 +299,101 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "ProfPage", data); err != nil {
 		log.Println("Error executing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+
+}
+
+func EditProfile(w http.ResponseWriter, r *http.Request) {
+	var successMsg string
+	if r.Method == http.MethodGet {
+		tmpl, err := template.ParseFiles("Pages/UserManage/editprofile.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			log.Println("Error parsing template:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		emailSess, _ := store.Get(r, "cookieEmail")
+		userEmail, _ := emailSess.Values["userEmail"].(string)
+		nameSess, _ := store.Get(r, "cookieName")
+		userName, _ := nameSess.Values["userName"].(string)
+
+		userList, err := database.GetUserDetail(userEmail)
+		var userTier string
+		var userPassword string
+		for _, checkUser := range userList {
+			if checkUser.Email == userEmail {
+				userTier = checkUser.MemberTier
+				userPassword = checkUser.Password
+			}
+		}
+
+		data := struct {
+			UserName     string
+			UserEmail    string
+			UserTier     string
+			UserPassword string
+			SuccessMsg   string
+		}{
+			UserName:     userName,
+			UserEmail:    userEmail,
+			UserPassword: userPassword,
+			UserTier:     userTier,
+			SuccessMsg:   "",
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		log.Println("User profile name", data.UserName)
+		if err := tmpl.ExecuteTemplate(w, "EditProfile", data); err != nil {
+			log.Println("Error executing template:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+	}
+	if r.Method == http.MethodPost {
+		r.ParseForm()
+		userEmail := r.FormValue("userEmail")
+		userPassword := r.FormValue("userPassword")
+		userName := r.FormValue("userName")
+		userTier := r.FormValue("userTier")
+		hash, err := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println("Hash error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		userPassword = string(hash)
+		if err := database.UpdateUser(userName, userEmail, userPassword, userTier); err != nil {
+			log.Println("Error inserting new user:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		successMsg = "Account updated successfully!"
+
+		tmpl, err := template.ParseFiles("Pages/UserManage/editprofile.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			log.Println("Error parsing template:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		data := struct {
+			UserName     string
+			UserEmail    string
+			UserTier     string
+			UserPassword string
+			SuccessMsg   string
+		}{
+			UserName:     userName,
+			UserEmail:    userEmail,
+			UserPassword: userPassword,
+			UserTier:     userTier,
+			SuccessMsg:   successMsg,
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		log.Println("User  profile name", data.UserName)
+		if err := tmpl.ExecuteTemplate(w, "EditProfile", data); err != nil {
+			log.Println("Error executing template:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 	}
 }

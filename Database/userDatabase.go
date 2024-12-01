@@ -98,3 +98,18 @@ func GetUserDetail(userEmail string) ([]User, error) {
 	}
 	return userList, nil
 }
+
+func UpdateUser(userName string, userEmail string, userPassword string, userTier string) error {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return err
+	}
+	updateQuery := "UPDATE Users SET Name = ?, Email = ?, Password = ?, MemberTier = ? WHERE Email = ?"
+	_, err = db.Exec(updateQuery, userName, userEmail, userPassword, userTier, userEmail)
+	if err != nil {
+		log.Println("Database update error:", err)
+		return err
+	}
+	return nil
+}
