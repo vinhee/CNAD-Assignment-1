@@ -7,7 +7,6 @@ import (
 
 func main() {
 	http.HandleFunc("/login", Controller.Loginpage)
-	http.HandleFunc("/homepage", Controller.HomePage)
 	http.HandleFunc("/register", Controller.Registerpage)
 	http.HandleFunc("/homemember", Controller.HomeMember)
 	http.HandleFunc("/logout", Controller.Logout)
