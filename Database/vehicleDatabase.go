@@ -14,9 +14,9 @@ type Cars struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	ImageLink   string `json:"imagelink"`
-	FirstHour   int    `json:"firsthour"`
 	PriceHour   int    `json:"pricehour"`
 	Quantity    int    `json:"quantity"`
+	MemberTier  string `json:"membertier"`
 }
 
 var cardb *sql.DB
@@ -49,7 +49,7 @@ func GetCarDetails() ([]Cars, error) {
 	carList := []Cars{}
 	for results.Next() {
 		var car Cars
-		if err := results.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.FirstHour, &car.PriceHour, &car.Quantity); err != nil {
+		if err := results.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.PriceHour, &car.Quantity, &car.MemberTier); err != nil {
 			log.Println("Row scan error:", err)
 			return nil, err
 		}
