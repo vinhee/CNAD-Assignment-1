@@ -22,7 +22,8 @@
       <title>ElecShare</title>
       <style>
           .clickBtn {
-              color: #232b47;
+              color:#ffffff;
+              background-color: #232b47;
               font-family: 'Oswald', sans-serif;
           }
           .label {
@@ -58,20 +59,17 @@
   </head>
   <body>
       {{template "navMember" .}}
-      <section style="background-color: #eee;">
+      <section style="background-color: #ffffff;">
         <div class="container py-5">
           <div class="row justify-content-center mb-3">
             <div class="col-md-12 col-xl-10">
                 {{range .Cars}}
-                <div class="card shadow-0 border rounded-3" style="margin-top:60px;">
+                <div class="card border rounded-3" style="margin-top:60px; background-color: #ffffffad; border: 2px solid #232b47;">
                     <div class="card-body">
                         <div class="row flex-grow-1">
                             <div class="col-md-12 col-lg-3 col-xl-3 mb-4 mb-lg-0">
                                 <div class="bg-image ripple rounded ripple-surface">
                                     <img src="{{.ImageLink}}" class="w-100" />
-                                    <div class="hover-overlay">
-                                        <div class="mask"></div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-xl-6">
@@ -79,7 +77,7 @@
                                 <p class="text-truncate mb-4 mb-md-0 label">
                                     {{.Description}}
                                 </p>
-                                <div class="mt-1 mb-0 text-muted small ">
+                                <div class="mt-1 mb-2 text-muted small ">
                                     <span class="mutedText">Minimum Tier: {{.MemberTier}}</span>
                                 </div>
                                   <div>
@@ -91,7 +89,7 @@
                                       {{end}}
                                   </div>
                                 <div class="mt-auto">
-                                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-sm mt-2 clickBtn" type="button" action="/BookCar">
+                                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-sm mt-2 clickBtn" type="button" action="/BookCar/{{.Id}}">
                                         Book Car
                                     </button>
                                 </div>

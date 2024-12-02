@@ -57,3 +57,30 @@ func GetCarDetails() ([]Cars, error) {
 	}
 	return carList, nil
 }
+
+func GetSpecificCar(carID int) ([]Cars, error) {
+	db, err := GetCarDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return nil, err
+	}
+	defer db.Close()
+	query := "SELECT * FROM Cars WHERE ID = ?"
+	results, err := db.Query(query, carID)
+	if err != nil {
+		log.Println("Database query error:", err)
+		return nil, err
+	}
+	defer results.Close()
+
+	carList := []Cars{}
+	for results.Next() {
+		var car Cars
+		if err := results.Scan(&car.Id, &car.Name, &car.ImageLink, &car.PriceHour, &car.Quantity, &car.MemberTier); err != nil {
+			log.Println("Row scan error:", err)
+			return nil, err
+		}
+		carList = append(carList, car)
+	}
+	return carList, nil
+}

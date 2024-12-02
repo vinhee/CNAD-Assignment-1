@@ -12,7 +12,8 @@ func main() {
 	http.HandleFunc("/logout", Controller.Logout)
 	http.HandleFunc("/profile", Controller.ProfilePage)
 	http.HandleFunc("/editprofile", Controller.EditProfile)
-	http.HandleFunc("/bookcar", Controller.DisplayCar)
+	http.HandleFunc("/displaycar", Controller.DisplayCar)
+	http.HandleFunc("/bookcar", Controller.BookCar)
 
 	http.ListenAndServe(":5000", nil)
 }
