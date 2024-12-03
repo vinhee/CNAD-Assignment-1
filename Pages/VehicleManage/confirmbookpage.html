@@ -49,58 +49,50 @@
           <div class="card card-registration my-4">
             <div class="row g-0">
               <div class="col-xl-6 d-none d-xl-block">
-                <img src="{{.Cars.ImageLink}}" class="img-fluid"
+                <img src="{{.ImageLink}}" class="img-fluid"
                   style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem; height:520px;" />
               </div>
               <div class="col-xl-6">
                 <div class="card-body p-md-5 text-black">
-                  <h3 class="mb-3 text-uppercase label">Book Car Form</h3>
-                    <form method="POST" action="/confirmbooking">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-
-                        <div data-mdb-input-init class="form-outline">
-                            <label for="userName" class="label">Name</label>
-                            <input type="text" id="userName" name="userName" value="{{.UserName}}" class="form-control form-control-lg label" readonly />
-                        </div>
-                        </div>
-                    </div>
-
-    
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <label for="carName" class="label">Name of Car</label>
-                        <input type="text" id="carName" name="carName" value="{{.Cars.Name}}" class="form-control form-control-lg label" readonly/>
-                    </div>
-    
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                        <label for="startDate" class="label">Start Date</label>
-                        <input type="date" id="startDate" name="startDate" class="form-control label" required min="{{.Today}}">
-                        </div>
-                        
-                        <div class="col-md-6 mb-4">
-                        <label for="endDate" class="label">End Date</label>
-                        <input type="date" id="endDate" name="endDate" class="form-control label" required min="{{.Today}}">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <label for="pickupTime" class="label">Pickup Time</label>
-                            <input type="time" id="pickupTime" name="pickupTime" class="form-control label" required>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <label for="dropoffTime" class="label">Dropoff Time</label>
-                            <input type="time" id="dropoffTime" name="dropoffTime" class="form-control label" required>
-                        </div>
-                    </div>
-                
-    
-                    <div class="d-flex justify-content-end pt-3">
-                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="bookcar">Book Car</button>
-                    </div>
-                    </form>
+                  <h3 class="mb-3 text-uppercase label">Confirm your Booking!</h3>
   
+                <form method="POST" action="/bookpayment">
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <div data-mdb-input-init class="form-outline">
+                        <label for="userName" class="label">Name</label>
+                        <input type="text" id="userName" name="userName" value="{{.UserName}}" class="form-control form-control-lg label" readonly />
+                      </div>
+                    </div>
+                  </div>
+
+  
+                  <div data-mdb-input-init class="form-outline mb-4">
+                    <label for="carName" class="label">Name of Car</label>
+                    <input type="text" id="carName" name="carName" value="{{.CarName}}" class="form-control form-control-lg label" readonly/>
+                  </div>
+  
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="startDateTime" class="label">Start Date</label>
+                      <input type="date" id="startDateTime" name="startDateTime" value="{{.StartDateTime}}" class="form-control label" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                      <label for="endDateTime" class="label">End Date</label>
+                      <input type="date" id="endDateTime" name="endDateTime" value="{{.EndDateTime}}" class="form-control label" readonly>
+                    </div>
+                  </div>
+
+                    <div>
+                    <label for="totalCost" class="label">Estimated Total Cost:</label>
+                    <input type="text" id="totalCost" name="totalCost" value="{{.TotalCostString}}" class="form-control label" readonly>
+                  </div>
+
+                  <div class="d-flex justify-content-end pt-3">
+                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="BookPayment">Payment & Checkout</button>
+                  </div>
+                </form>
                 </div>
               </div>
             </div>

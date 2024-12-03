@@ -26,8 +26,13 @@ func generateSecretKey() string {
 var store = sessions.NewCookieStore([]byte(generateSecretKey()))
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "cookieName")
-	session.Values["cookieName"] = nil
+	nameSess, _ := store.Get(r, "cookieName")
+	nameSess.Values["cookieName"] = nil
+	emailSess, _ := store.Get(r, "cookieEmail")
+	emailSess.Values["cookieEmail"] = nil
+	idSess, _ := store.Get(r, "cookieID")
+	idSess.Values["cookieID"] = nil
+
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
@@ -75,8 +80,11 @@ func Loginpage(w http.ResponseWriter, r *http.Request) {
 						sessionName.Values["userName"] = checkUser.Name
 						sessionEmail, _ := store.Get(r, "cookieEmail")
 						sessionEmail.Values["userEmail"] = checkEmail
+						sessionID, _ := store.Get(r, "cookieID")
+						sessionID.Values["userID"] = checkUser.Id
 						sessionName.Save(r, w)
 						sessionEmail.Save(r, w)
+						sessionID.Save(r, w)
 						http.Redirect(w, r, "/homemember", http.StatusSeeOther)
 						return
 					}
