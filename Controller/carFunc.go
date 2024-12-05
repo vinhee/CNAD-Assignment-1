@@ -36,9 +36,24 @@ func DisplayCar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var tierNum = map[string]int{ // for member tier
+	"Basic":   1,
+	"Premium": 2,
+	"VIP":     3,
+}
+
 func BookCar(w http.ResponseWriter, r *http.Request) {
 	nameSess, _ := store.Get(r, "cookieName")
 	userName, _ := nameSess.Values["userName"].(string)
+	emailSess, _ := store.Get(r, "cookieEmail")
+	userEmail, _ := emailSess.Values["userEmail"].(string)
+	userList, _ := database.GetUserDetail(userEmail)
+	var userTier string
+	for _, checkUser := range userList {
+		if checkUser.Email == userEmail {
+			userTier = checkUser.MemberTier
+		}
+	}
 	stringcarID := r.URL.Query().Get("id")
 	if stringcarID == "" {
 		http.Error(w, "Car ID is required", http.StatusBadRequest)
@@ -54,21 +69,44 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 
 	today := time.Now().Format("2006-01-02")
 
-	tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	userTierNum := tierNum[userTier]
+	carTierNum := tierNum[car.MemberTier]
 
-	err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
-		"Cars":     car,
-		"UserName": userName,
-		"Today":    today,
-	})
-	if err != nil {
-		log.Println("Error with server: ", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
+	if userTierNum >= carTierNum {
+		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
+			"Cars":     car,
+			"UserName": userName,
+			"Today":    today,
+		})
+		if err != nil {
+			log.Println("Error with server: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	} else if userTierNum < carTierNum {
+		errMsg := "Your membership tier does not meet the minimum membership tier"
+		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
+			"Cars":     car,
+			"UserName": userName,
+			"Today":    today,
+			"ErrMsg":   errMsg,
+		})
+		if err != nil {
+			log.Println("Error with server: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 

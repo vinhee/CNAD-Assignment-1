@@ -56,8 +56,13 @@
                 <div class="card-body p-md-5 text-black">
                   <h3 class="mb-3 text-uppercase label">Book Car Form</h3>
                     <form method="POST" action="/confirmbooking">
+                      {{if .ErrMsg}}
+                      <div data-mdb-input-init class="form-outline mb-4">
+                        <h5 class="label" style="color:red">{{.ErrMsg}}</h5>
+                      </div>
+                      {{end}}
                     <div class="row">
-                        <div class="col-md-6 mb-4">
+                      <div class="col-md-6 mb-4">
 
                         <div data-mdb-input-init class="form-outline">
                             <label for="userName" class="label">Name</label>
@@ -96,9 +101,15 @@
                     </div>
                 
     
+                    {{if .ErrMsg}}
+                    <div class="d-flex justify-content-end pt-3">
+                      <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" disabled>Book Car</button>
+                  </div>
+                    {{else}}
                     <div class="d-flex justify-content-end pt-3">
                         <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="bookcar">Book Car</button>
                     </div>
+                    {{end}}
                     </form>
   
                 </div>
