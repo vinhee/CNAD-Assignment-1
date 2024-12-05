@@ -120,4 +120,12 @@
       </div>
     </div>
   </section>
+  <script>
+      document.getElementById('startDate').addEventListener('change', function() {
+        const startDate = new Date(this.value);
+        
+        const endDateInput = document.getElementById('endDate');
+        endDateInput.min = this.value;
+      });
+  </script>
 </html>

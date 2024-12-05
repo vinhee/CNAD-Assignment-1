@@ -76,3 +76,32 @@ func GetSpecificCar(carID int) (Cars, error) {
 
 	return car, nil
 }
+
+func UpdateQuantity(carID int) error {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return err
+	}
+	car, _ := GetSpecificCar(carID)
+	quantity := car.Quantity
+	if quantity-1 == 0 {
+		quantity = 0
+		updateQuery := "UPDATE Cars SET Quantity = ? WHERE ID = ?"
+		_, err = db.Exec(updateQuery, quantity, carID)
+		if err != nil {
+			log.Println("Database update error:", err)
+			return err
+		}
+		return nil
+	} else {
+		quantity = 1
+		updateQuery := "UPDATE Cars SET Quantity = ? WHERE ID = ?"
+		_, err = db.Exec(updateQuery, quantity, carID)
+		if err != nil {
+			log.Println("Database update error:", err)
+			return err
+		}
+		return nil
+	}
+}

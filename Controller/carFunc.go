@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -110,10 +111,15 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func roundNum(val float64, precision uint) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
+}
+
 func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	IdSess, _ := store.Get(r, "cookieID")
 	userID := IdSess.Values["userID"]
-	log.Print("UserID: %d", userID)
+	log.Print("UserID: ", userID)
 	carName := r.FormValue("carName")
 
 	startDate := r.FormValue("startDate")
@@ -164,10 +170,20 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	totalHours := endDateTime.Sub(startDateTime).Hours()
 	totalCost := totalHours * float64(priceHour)
 
-	totalCostString := fmt.Sprintf("%.1f Hours x $%d (Standard Price per Hour) =  $%.2f ", totalHours, priceHour, totalCost)
+	totalCostString := fmt.Sprintf("%.2f Hours x $%d (Standard Price per Hour) =  $%.2f ", totalHours, priceHour, totalCost)
 
 	formattedStartDateTime := startDateTime.Format("2006-01-02")
 	formattedEndDateTime := endDateTime.Format("2006-01-02")
+
+	var booking database.CarsBooking
+	booking.UserID = userID.(int)
+	booking.CarName = carName
+	booking.StartDate = formattedStartDateTime
+	booking.EndDate = formattedEndDateTime
+	booking.TotalHours = roundNum(totalHours, 2) // rounds number to 2 d.p.
+	booking.TotalCost = roundNum(totalCost, 2)
+
+	database.AddBooking(booking) // add to booking database
 
 	tmpl, err := template.ParseFiles("Pages/VehicleManage/confirmbookpage.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {
