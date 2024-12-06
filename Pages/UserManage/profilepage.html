@@ -49,11 +49,20 @@
                   </div>
                   <h6 class="label"><b>Rental History</b></h6>
                   <hr class="mt-0 mb-4">
-                  <div class="row pt-1">
-                    <div class="col-6 mb-3">
+                  {{if gt (len .BookList) 0}}
+                  <div class="card">
+                    {{range .BookList}} 
+                    <div class="card-body">
+                      <h5 class="card-title">{{.CarName}}</h5>
+                      <p class="card-text">From: {{.StartDate}}</p></p>
+                      <p class="card-text">To: {{.EndDate}}</p></p>
                     </div>
                   </div>
-                </div>
+                    {{end}}
+                {{else}}
+                    <h4><b>No rental history, book now!</b></h4>
+                {{end}}
+              </div>
               </div>
             </div>
           </div>

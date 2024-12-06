@@ -119,6 +119,8 @@ func roundNum(val float64, precision uint) float64 {
 func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	IdSess, _ := store.Get(r, "cookieID")
 	userID := IdSess.Values["userID"]
+	emailSess, _ := store.Get(r, "cookieEmail")
+	userEmail := emailSess.Values["userEmail"]
 	log.Print("UserID: ", userID)
 	carName := r.FormValue("carName")
 
@@ -142,6 +144,7 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 
 	var priceHour int
 	var imagelink string
+	var carID int
 	carList, err := database.GetCarDetails()
 	if err != nil {
 		log.Println("Retrieve Data Error:", err)
@@ -151,6 +154,7 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 		if findCar.Name == carName {
 			priceHour = findCar.PriceHour
 			imagelink = findCar.ImageLink
+			carID = findCar.Id
 			break
 		}
 	}
@@ -178,12 +182,14 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	var booking database.CarsBooking
 	booking.UserID = userID.(int)
 	booking.CarName = carName
-	booking.StartDate = formattedStartDateTime
-	booking.EndDate = formattedEndDateTime
+	booking.StartDate = startDateTime
+	booking.EndDate = endDateTime
 	booking.TotalHours = roundNum(totalHours, 2) // rounds number to 2 d.p.
 	booking.TotalCost = roundNum(totalCost, 2)
 
-	database.AddBooking(booking) // add to booking database
+	database.AddBooking(booking)   // add to booking database
+	database.UpdateQuantity(carID) // update quantity of car to 0
+	database.UpdateUserBook(userEmail.(string))
 
 	tmpl, err := template.ParseFiles("Pages/VehicleManage/confirmbookpage.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {

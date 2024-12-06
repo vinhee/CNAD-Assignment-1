@@ -114,3 +114,25 @@ func UpdateUser(userName string, userEmail string, userPassword string, userTier
 	}
 	return nil
 }
+
+func UpdateUserBook(userEmail string) error {
+	userList, _ := GetUserDetail(userEmail)
+	var userID int
+	for _, checkUser := range userList {
+		if checkUser.Email == userEmail {
+			userID = checkUser.Id
+		}
+	}
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return err
+	}
+	updateQuery := "UPDATE Users SET Bookings = ? WHERE ID = ?"
+	_, err = db.Exec(updateQuery, 0, userID)
+	if err != nil {
+		log.Println("Database update error:", err)
+		return err
+	}
+	return nil
+}

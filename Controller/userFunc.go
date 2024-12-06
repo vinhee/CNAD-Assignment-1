@@ -289,6 +289,8 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 	}
 	session, _ := store.Get(r, "cookieEmail")
 	userEmail, _ := session.Values["userEmail"].(string)
+	idSess, _ := store.Get(r, "cookieID")
+	userID, _ := idSess.Values["userID"].(int)
 	userList, err := database.GetUserDetail(userEmail)
 	var userName string
 	var userTier string
@@ -301,16 +303,23 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	bookList, err := database.GetUserBook(userID)
+	if err != nil {
+		log.Println("Error getting user booking:", err)
+	}
+
 	data := struct {
 		UserName    string
 		UserEmail   string
 		UserTier    string
 		UserBooking int
+		BookList    []database.CarsBooking
 	}{
 		UserName:    userName,
 		UserEmail:   userEmail,
 		UserTier:    userTier,
 		UserBooking: userBooking,
+		BookList:    bookList,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
