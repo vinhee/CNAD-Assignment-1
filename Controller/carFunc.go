@@ -44,6 +44,15 @@ var tierNum = map[string]int{ // for member tier
 	"VIP":     3,
 }
 
+func removeDate(dates []string, dateToRemove string) []string {
+	for i, date := range dates {
+		if date == dateToRemove {
+			return append(dates[:i], dates[i+1:]...)
+		}
+	}
+	return dates
+}
+
 func BookCar(w http.ResponseWriter, r *http.Request) {
 	nameSess, _ := store.Get(r, "cookieName")
 	userName, _ := nameSess.Values["userName"].(string)
@@ -81,10 +90,18 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 
 	var blockedDates []string
 	for _, booking := range bookList {
-		startDate := booking.StartDate
-		endDate := booking.EndDate
-		for d := startDate; d.Before(endDate.AddDate(0, 0, 1)); d = d.AddDate(0, 0, 1) {
-			blockedDates = append(blockedDates, d.Format("2006-01-02"))
+		if booking.Status != "Cancelled" {
+			startDate := booking.StartDate
+			endDate := booking.EndDate
+			for d := startDate; d.Before(endDate.AddDate(0, 0, 1)); d = d.AddDate(0, 0, 1) {
+				blockedDates = append(blockedDates, d.Format("2006-01-02"))
+			}
+		} else {
+			startDate := booking.StartDate
+			endDate := booking.EndDate
+			for d := startDate; d.Before(endDate.AddDate(0, 0, 1)); d = d.AddDate(0, 0, 1) {
+				blockedDates = removeDate(blockedDates, d.Format("2006-01-02"))
+			}
 		}
 	}
 
@@ -155,7 +172,6 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-
 	}
 }
 

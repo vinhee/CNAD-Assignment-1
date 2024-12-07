@@ -73,6 +73,25 @@ func InsertNewUser(user User) error {
 	return nil
 }
 
+func GetSpecificUser(userID int) (User, error) {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return User{}, err
+	}
+	defer db.Close()
+	query := "SELECT * FROM Users WHERE ID = ?"
+	row := db.QueryRow(query, userID)
+
+	var user User
+	if err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.MemberTier, &user.Bookings); err != nil {
+		log.Println("Row scan error:", err)
+		return User{}, err
+	}
+
+	return user, nil
+}
+
 func GetUserDetail(userEmail string) ([]User, error) {
 	db, err := GetDB()
 	if err != nil {
@@ -130,6 +149,21 @@ func UpdateUserBook(userEmail string) error {
 	}
 	updateQuery := "UPDATE Users SET Bookings = ? WHERE ID = ?"
 	_, err = db.Exec(updateQuery, 0, userID)
+	if err != nil {
+		log.Println("Database update error:", err)
+		return err
+	}
+	return nil
+}
+
+func IncreaseBook(userID int) error {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return err
+	}
+	updateQuery := "UPDATE Users SET Bookings = ? WHERE ID = ?"
+	_, err = db.Exec(updateQuery, 1, userID)
 	if err != nil {
 		log.Println("Database update error:", err)
 		return err

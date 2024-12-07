@@ -39,13 +39,32 @@ func AddBooking(booking CarsBooking) error {
 	return nil
 }
 
+func GetBookingByID(bookingID int) (CarsBooking, error) {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return CarsBooking{}, err
+	}
+	defer db.Close()
+	query := "SELECT * FROM CarsBooking WHERE ID = ?"
+	row := db.QueryRow(query, bookingID)
+
+	var book CarsBooking
+	if err := row.Scan(&book.Id, &book.UserID, &book.CarName, &book.CarID, &book.StartDate, &book.EndDate, &book.TotalHours, &book.TotalCost, &book.Status); err != nil {
+		log.Println("Row scan error:", err)
+		return CarsBooking{}, err
+	}
+
+	return book, nil
+}
+
 func UpdatePaid(bookingID int) error {
 	db, err := GetDB()
 	if err != nil {
 		log.Println("Unable to connect to function:", err)
 		return err
 	}
-	updateQuery := "UPDATE CarsBookings SET Status = ? WHERE ID = ?"
+	updateQuery := "UPDATE CarsBooking SET Status = ? WHERE ID = ?"
 	_, err = db.Exec(updateQuery, "Paid", bookingID)
 	if err != nil {
 		log.Println("Database update error:", err)
@@ -60,7 +79,7 @@ func UpdateInProgress(bookingID int) error {
 		log.Println("Unable to connect to function:", err)
 		return err
 	}
-	updateQuery := "UPDATE CarsBookings SET Status = ? WHERE ID = ?"
+	updateQuery := "UPDATE CarsBooking SET Status = ? WHERE ID = ?"
 	_, err = db.Exec(updateQuery, "In Progress", bookingID)
 	if err != nil {
 		log.Println("Database update error:", err)
@@ -75,7 +94,7 @@ func UpdateComplete(bookingID int) error {
 		log.Println("Unable to connect to function:", err)
 		return err
 	}
-	updateQuery := "UPDATE CarsBookings SET Status = ? WHERE ID = ?"
+	updateQuery := "UPDATE CarsBooking SET Status = ? WHERE ID = ?"
 	_, err = db.Exec(updateQuery, "Completed", bookingID)
 	if err != nil {
 		log.Println("Database update error:", err)
@@ -90,7 +109,7 @@ func UpdateCancelled(bookingID int) error {
 		log.Println("Unable to connect to function:", err)
 		return err
 	}
-	updateQuery := "UPDATE CarsBookings SET Status = ? WHERE ID = ?"
+	updateQuery := "UPDATE CarsBooking SET Status = ? WHERE ID = ?"
 	_, err = db.Exec(updateQuery, "Cancelled", bookingID)
 	if err != nil {
 		log.Println("Database update error:", err)

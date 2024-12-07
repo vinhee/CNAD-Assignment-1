@@ -105,9 +105,12 @@
                   <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn">
                       Edit
                   </button>
-                  <a class="btn btn-link btn-sm btn-rounded clickBtn" href="/cancelbooking?{{.Id}}">
-                    <button>Cancel</button>
-                </a>
+                  <form action="/cancelbooking" method="POST" style="display:inline;">
+                    <input type="hidden" name="bookingID" value="{{.Id}}">
+                    <button type="submit" class="btn btn-link btn-sm btn-rounded clickBtn label">
+                        Cancel
+                    </button>
+                </form>
               </td>
         </tr>
       {{end}}

@@ -432,8 +432,12 @@ func EditProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func CancelBooking(w http.ResponseWriter, r *http.Request) {
-	bookingIDstr := r.URL.Query().Get("bookingID")
+	bookingIDstr := r.FormValue("bookingID")
 	bookingID, _ := strconv.Atoi(bookingIDstr)
 	database.UpdateCancelled(bookingID)
+	database.IncreaseBook(bookingID)
+	booking, _ := database.GetBookingByID(bookingID)
+	log.Print("UserID is: ", booking.UserID)
+	database.IncreaseBook(booking.UserID)
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
