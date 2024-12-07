@@ -84,9 +84,6 @@
                                       <div class="d-flex flex-row align-items-center mb-1">
                                           <h6 class="mb-1 me-1 label">Price per Hour: ${{.PriceHour}}</h6>
                                       </div>
-                                      {{if eq .Quantity 0}}
-                                      <h6 class="text-danger mutedText">Fully Booked!</h6>
-                                      {{end}}
                                   </div>
                                 <div class="mt-auto">
                                     <button data-mdb-button-init data-mdb-ripple-init class="btn btn-sm mt-2 clickBtn" type="button"  onclick="window.location.href=`/bookcar?id={{.Id}}`">

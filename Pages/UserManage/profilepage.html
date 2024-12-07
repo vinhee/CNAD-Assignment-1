@@ -15,6 +15,11 @@
           color: #232b47;
           font-family:'Oswald', sans-serif;
       }
+    .clickBtn {
+            color:#ffffff;
+            background-color: #232b47;
+            font-family: 'Oswald', sans-serif;
+      }
   </style>
 </head>
 {{template "navMember" .}}
@@ -57,7 +62,7 @@
     </div> 
   </section>
 
-  <h2 class="label">Rental History</h2>
+  <h2 class="label mt-4" style="text-align:center;" >Rental History</h2>
   <table class="table align-middle mb-0 bg-white label">
       <thead class="bg-light">
           {{if gt (len .BookList) 0}}
@@ -86,6 +91,8 @@
               <td>
                   {{if eq .Status "Booked"}}
                   <span class="badge badge-primary rounded-pill d-inline">{{.Status}}</span>
+                  {{else if eq .Status "Paid"}}
+                  <span class="badge badge-info rounded-pill d-inline">{{.Status}}</span>
                   {{else if eq .Status "In Process"}}
                   <span class="badge badge-warning rounded-pill d-inline">{{.Status}}</span>
                   {{else if eq .Status "Completed"}}
@@ -95,12 +102,12 @@
                   {{end}}
               </td>
               <td>
-                  <button type="button" class="btn btn-link btn-sm btn-rounded label">
+                  <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn">
                       Edit
                   </button>
-                  <button type="button" class="btn btn-link btn-sm btn-rounded label">
-                      Cancel
-                  </button>
+                  <a class="btn btn-link btn-sm btn-rounded clickBtn" href="/cancelbooking?{{.Id}}">
+                    <button>Cancel</button>
+                </a>
               </td>
         </tr>
       {{end}}

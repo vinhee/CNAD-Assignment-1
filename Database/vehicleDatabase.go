@@ -2,9 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -15,24 +13,13 @@ type Cars struct {
 	Description string `json:"description"`
 	ImageLink   string `json:"imagelink"`
 	PriceHour   int    `json:"pricehour"`
-	Quantity    int    `json:"quantity"`
 	MemberTier  string `json:"membertier"`
 }
 
 var cardb *sql.DB
 
-func GetCarDB() (*sql.DB, error) {
-	dbUser, dbPassword, dbHost, dbName := os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME")
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
-	cardb, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, fmt.Errorf("database connection error: %w", err)
-	}
-	return cardb, nil
-}
-
 func GetCarDetails() ([]Cars, error) {
-	db, err := GetCarDB()
+	db, err := GetDB()
 	if err != nil {
 		log.Println("Unable to connect to function:", err)
 		return nil, err
@@ -49,7 +36,7 @@ func GetCarDetails() ([]Cars, error) {
 	carList := []Cars{}
 	for results.Next() {
 		var car Cars
-		if err := results.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.PriceHour, &car.Quantity, &car.MemberTier); err != nil {
+		if err := results.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.PriceHour, &car.MemberTier); err != nil {
 			log.Println("Row scan error:", err)
 			return nil, err
 		}
@@ -59,7 +46,7 @@ func GetCarDetails() ([]Cars, error) {
 }
 
 func GetSpecificCar(carID int) (Cars, error) {
-	db, err := GetCarDB()
+	db, err := GetDB()
 	if err != nil {
 		log.Println("Unable to connect to function:", err)
 		return Cars{}, err
@@ -69,39 +56,10 @@ func GetSpecificCar(carID int) (Cars, error) {
 	row := db.QueryRow(query, carID)
 
 	var car Cars
-	if err := row.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.PriceHour, &car.Quantity, &car.MemberTier); err != nil {
+	if err := row.Scan(&car.Id, &car.Name, &car.Description, &car.ImageLink, &car.PriceHour, &car.MemberTier); err != nil {
 		log.Println("Row scan error:", err)
 		return Cars{}, err
 	}
 
 	return car, nil
-}
-
-func UpdateQuantity(carID int) error {
-	db, err := GetDB()
-	if err != nil {
-		log.Println("Unable to connect to function:", err)
-		return err
-	}
-	car, _ := GetSpecificCar(carID)
-	quantity := car.Quantity
-	if quantity-1 == 0 {
-		quantity = 0
-		updateQuery := "UPDATE Cars SET Quantity = ? WHERE ID = ?"
-		_, err = db.Exec(updateQuery, quantity, carID)
-		if err != nil {
-			log.Println("Database update error:", err)
-			return err
-		}
-		return nil
-	} else {
-		quantity = 1
-		updateQuery := "UPDATE Cars SET Quantity = ? WHERE ID = ?"
-		_, err = db.Exec(updateQuery, quantity, carID)
-		if err != nil {
-			log.Println("Database update error:", err)
-			return err
-		}
-		return nil
-	}
 }

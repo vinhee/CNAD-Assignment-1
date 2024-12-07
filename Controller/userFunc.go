@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/mail"
 	"regexp"
+	"strconv"
+	"time"
 
 	database "CNAD-Assignment-1/Database"
 
@@ -308,18 +310,22 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error getting user booking:", err)
 	}
 
+	todayDate := time.Now()
+
 	data := struct {
 		UserName    string
 		UserEmail   string
 		UserTier    string
 		UserBooking int
 		BookList    []database.CarsBooking
+		TodayDate   time.Time
 	}{
 		UserName:    userName,
 		UserEmail:   userEmail,
 		UserTier:    userTier,
 		UserBooking: userBooking,
 		BookList:    bookList,
+		TodayDate:   todayDate,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -423,4 +429,11 @@ func EditProfile(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
 	}
+}
+
+func CancelBooking(w http.ResponseWriter, r *http.Request) {
+	bookingIDstr := r.URL.Query().Get("bookingID")
+	bookingID, _ := strconv.Atoi(bookingIDstr)
+	database.UpdateCancelled(bookingID)
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

@@ -13,6 +13,7 @@ func main() {
 	http.HandleFunc("/logout", Controller.Logout)
 	http.HandleFunc("/profile", Controller.ProfilePage)
 	http.HandleFunc("/editprofile", Controller.EditProfile)
+	http.HandleFunc("/cancelbooking", Controller.CancelBooking)
 
 	// Vehicle Reservation
 	http.HandleFunc("/displaycar", Controller.DisplayCar)

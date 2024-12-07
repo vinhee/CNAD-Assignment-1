@@ -7,19 +7,8 @@
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">  
 	<title>ElecShare</title>
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
-      <title>ElecShare</title>
   <style>
     .card-registration .select-input.form-control[readonly]:not([disabled]) {
         font-size: 1rem;
@@ -61,6 +50,12 @@
                         <h5 class="label" style="color:red">{{.ErrMsg}}</h5>
                       </div>
                       {{end}}
+                      {{if .ErrBookMsg}}
+                      <div data-mdb-input-init class="form-outline mb-4">
+                        <h5 class="label" style="color:red">{{.ErrBookMsg}}</h5>
+                      </div>
+                      {{end}}
+                      <input type="hidden" name="carID" value="{{.Cars.Id}}">
                     <div class="row">
                       <div class="col-md-6 mb-4">
 
@@ -107,7 +102,7 @@
                   </div>
                     {{else}}
                     <div class="d-flex justify-content-end pt-3">
-                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="bookcar">Book Car</button>
+                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2"  action="/bookcar">Book Car</button>
                     </div>
                     {{end}}
                     </form>
@@ -121,11 +116,46 @@
     </div>
   </section>
   <script>
-      document.getElementById('startDate').addEventListener('change', function() {
+    const blockedDatesArray = JSON.parse('{{.BlockedDates}}');
+    const blockedDatesSet = new Set(blockedDatesArray);
+    const today = "{{.Today}}";
+
+    function isBlockedDate(date) {
+        const dateString = date.toISOString().split('T')[0];
+        console.log("Checking blocked date:", dateString);
+        return blockedDatesSet.has(dateString);
+    }
+
+    function isEndDateValid(startDate, endDate) {
+        return endDate >= startDate; 
+    }
+
+    document.getElementById('startDate').addEventListener('change', function() {
         const startDate = new Date(this.value);
-        
         const endDateInput = document.getElementById('endDate');
-        endDateInput.min = this.value;
-      });
-  </script>
+
+        if (isBlockedDate(startDate)) {
+            alert("The selected start date is blocked. Please choose another date.");
+            this.value = "";
+            endDateInput.value = "";
+            endDateInput.min = "";
+        } else {
+            endDateInput.min = this.value;
+        }
+    });
+
+    document.getElementById('endDate').addEventListener('change', function() {
+        const endDate = new Date(this.value);
+        const startDate = new Date(document.getElementById('startDate').value);
+
+        if (isBlockedDate(endDate)) {
+            alert("The selected end date is blocked. Please choose another date.");
+            this.value = ""; 
+        } else if (!isEndDateValid(startDate, endDate)) {
+            alert("The end date must be on or after the start date.");
+            this.value = ""; 
+        }
+    });
+</script>
+  
 </html>

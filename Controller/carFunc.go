@@ -2,6 +2,7 @@ package Controller
 
 import (
 	database "CNAD-Assignment-1/Database"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -50,23 +51,49 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 	userEmail, _ := emailSess.Values["userEmail"].(string)
 	userList, _ := database.GetUserDetail(userEmail)
 	var userTier string
+	var userBook int
 	for _, checkUser := range userList {
 		if checkUser.Email == userEmail {
 			userTier = checkUser.MemberTier
+			userBook = checkUser.Bookings
 		}
 	}
-	stringcarID := r.URL.Query().Get("id")
-	if stringcarID == "" {
+	log.Print("User bookings: ", userBook)
+	stringCarID := r.URL.Query().Get("id")
+	if stringCarID == "" {
 		http.Error(w, "Car ID is required", http.StatusBadRequest)
 		return
 	}
-	carID, _ := strconv.Atoi(stringcarID)
-
+	carID, err := strconv.Atoi(stringCarID)
+	if err != nil {
+		http.Error(w, "Invalid Car ID", http.StatusBadRequest)
+		return
+	}
+	log.Print("Car ID:", carID)
 	car, err := database.GetSpecificCar(carID)
 	if err != nil {
 		log.Println("Retrieve Data Error:", err)
 		return
 	}
+
+	bookList, _ := database.GetCarBook(carID)
+	log.Print("book details: ", bookList)
+
+	var blockedDates []string
+	for _, booking := range bookList {
+		startDate := booking.StartDate
+		endDate := booking.EndDate
+		for d := startDate; d.Before(endDate.AddDate(0, 0, 1)); d = d.AddDate(0, 0, 1) {
+			blockedDates = append(blockedDates, d.Format("2006-01-02"))
+		}
+	}
+
+	blockedDatesJSON, err := json.Marshal(blockedDates)
+	if err != nil {
+		log.Println("Error marshaling blocked dates:", err)
+		return
+	}
+	log.Print("blocked dates JSON: ", string(blockedDatesJSON))
 
 	today := time.Now().Format("2006-01-02")
 
@@ -81,9 +108,10 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
-			"Cars":     car,
-			"UserName": userName,
-			"Today":    today,
+			"Cars":         car,
+			"UserName":     userName,
+			"Today":        today,
+			"BlockedDates": string(blockedDatesJSON),
 		})
 		if err != nil {
 			log.Println("Error with server: ", err)
@@ -108,6 +136,26 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+	}
+	if userBook == 0 {
+		errBookMsg := "You have exceeded your booking limits!"
+		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
+			"Cars":       car,
+			"UserName":   userName,
+			"Today":      today,
+			"ErrBookMsg": errBookMsg,
+		})
+		if err != nil {
+			log.Println("Error with server: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
 	}
 }
 
@@ -144,7 +192,6 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 
 	var priceHour int
 	var imagelink string
-	var carID int
 	carList, err := database.GetCarDetails()
 	if err != nil {
 		log.Println("Retrieve Data Error:", err)
@@ -154,7 +201,6 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 		if findCar.Name == carName {
 			priceHour = findCar.PriceHour
 			imagelink = findCar.ImageLink
-			carID = findCar.Id
 			break
 		}
 	}
@@ -179,16 +225,27 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	formattedStartDateTime := startDateTime.Format("2006-01-02")
 	formattedEndDateTime := endDateTime.Format("2006-01-02")
 
+	carIDStr := r.FormValue("carID")
+	if carIDStr == "" {
+		http.Error(w, "Car ID is required", http.StatusBadRequest)
+		return
+	}
+	carID, err := strconv.Atoi(carIDStr)
+	if err != nil {
+		http.Error(w, "Invalid Car ID", http.StatusBadRequest)
+		return
+	}
+
 	var booking database.CarsBooking
 	booking.UserID = userID.(int)
 	booking.CarName = carName
+	booking.CarID = carID
 	booking.StartDate = startDateTime
 	booking.EndDate = endDateTime
 	booking.TotalHours = roundNum(totalHours, 2) // rounds number to 2 d.p.
 	booking.TotalCost = roundNum(totalCost, 2)
 
-	database.AddBooking(booking)   // add to booking database
-	database.UpdateQuantity(carID) // update quantity of car to 0
+	database.AddBooking(booking) // add to booking database
 	database.UpdateUserBook(userEmail.(string))
 
 	tmpl, err := template.ParseFiles("Pages/VehicleManage/confirmbookpage.html", "Pages/UserManage/navbarmember.html")
