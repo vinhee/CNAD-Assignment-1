@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">  
+	<title>ElecShare</title>
+  <style>
+    .card-registration .select-input.form-control[readonly]:not([disabled]) {
+        font-size: 1rem;
+        line-height: 2.15;
+        padding-left: .75em;
+        padding-right: .75em;
+    }
+    .card-registration .select-arrow {
+        top: 13px;
+    }
+    .clickBtn {
+        color:#ffffff;
+        background-color: #232b47;
+        font-family: 'Oswald', sans-serif;
+    }
+    .label {
+        color: #232b47;
+        font-family: 'Oswald', sans-serif;
+    }
+</style>
+</head>
+{{template "navMember" .}}
+<section class="h-100 bg-light" style="margin-top:60px;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col">
+          <div class="card card-registration my-4">
+            <div class="row g-0">
+              <div class="col-xl-6 d-none d-xl-block">
+                <img src="{{.ImageLink}}" class="img-fluid"
+                  style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem; height:520px;" />
+              </div>
+              <div class="col-xl-6">
+                <div class="card-body p-md-5 text-black">
+                  <h3 class="mb-3 text-uppercase label">Edit Car Booking</h3>
+                    <form method="POST" action="/editbooking">
+                      <input type="hidden" name="carID" value="{{.CarID}}">
+                      <input type="hidden" name="bookingID" value="{{.BookingID}}">
+                    <div class="row">
+                      <div class="col-md-6 mb-4">
+
+                        <div data-mdb-input-init class="form-outline">
+                            <label for="userName" class="label">Name</label>
+                            <input type="text" id="userName" name="userName" value="{{.UserName}}" class="form-control form-control-lg label" readonly />
+                        </div>
+                        </div>
+                    </div>
+
+    
+                    <div data-mdb-input-init class="form-outline mb-4">
+                        <label for="carName" class="label">Name of Car</label>
+                        <input type="text" id="carName" name="carName" value="{{.CarName}}" class="form-control form-control-lg label" readonly/>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                        <label for="startDate" class="label">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" value="{{.StartDate}}" class="form-control label" required min="{{.Today}}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                        <label for="endDate" class="label">End Date</label>
+                        <input type="date" id="endDate" name="endDate" value="{{.EndDate}}" class="form-control label" required min="{{.Today}}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="pickupTime" class="label">Pickup Time</label>
+                            <input type="time" id="pickupTime" name="pickupTime" value="{{.StartTime}}" class="form-control label">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="dropoffTime" class="label">Dropoff Time</label>
+                            <input type="time" id="dropoffTime" name="dropoffTime" value="{{.EndTime}}" class="form-control label">
+                        </div>
+                    </div>
+                
+                    <div class="d-flex justify-content-end pt-3">
+                        <button type="submit" class="btn btn-link btn-sm btn-rounded clickBtn">
+                            Update Booking
+                        </button>
+                    </div>
+                    </form>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    const blockedDatesArray = JSON.parse('{{.BlockedDates}}');
+    const blockedDatesSet = new Set(blockedDatesArray);
+    const today = "{{.Today}}";
+
+    function isBlockedDate(date) {
+        const dateString = date.toISOString().split('T')[0];
+        console.log("Checking blocked date:", dateString);
+        return blockedDatesSet.has(dateString);
+    }
+
+    function isEndDateValid(startDate, endDate) {
+        return endDate >= startDate; 
+    }
+
+    document.getElementById('startDate').addEventListener('change', function() {
+        const startDate = new Date(this.value);
+        const endDateInput = document.getElementById('endDate');
+
+        if (isBlockedDate(startDate)) {
+            alert("The selected start date is blocked. Please choose another date.");
+            this.value = "";
+            endDateInput.value = "";
+            endDateInput.min = "";
+        } else {
+            endDateInput.min = this.value;
+        }
+    });
+
+    document.getElementById('endDate').addEventListener('change', function() {
+        const endDate = new Date(this.value);
+        const startDate = new Date(document.getElementById('startDate').value);
+
+        if (isBlockedDate(endDate)) {
+            alert("The selected end date is blocked. Please choose another date.");
+            this.value = ""; 
+        } else if (!isEndDateValid(startDate, endDate)) {
+            alert("The end date must be on or after the start date.");
+            this.value = ""; 
+        }
+    });
+</script>
+  
+</html>

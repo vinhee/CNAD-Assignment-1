@@ -285,3 +285,134 @@ func ConfirmBooking(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func EditBooking(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		bookingIDstr := r.URL.Query().Get("bookingID")
+		bookingID, err := strconv.Atoi(bookingIDstr)
+		if err != nil {
+			http.Error(w, "Invalid booking ID", http.StatusBadRequest)
+			return
+		}
+
+		book, err := database.GetBookingByID(bookingID)
+		if err != nil {
+			log.Println("Error retrieving booking:", err)
+			http.Error(w, "Booking not found", http.StatusNotFound)
+			return
+		}
+
+		startDateTime := book.StartDate
+		endDateTime := book.EndDate
+		startDate := startDateTime.Format("2006-01-02")
+		startTime := startDateTime.Format("15:04")
+		endDate := endDateTime.Format("2006-01-02")
+		endTime := endDateTime.Format("15:04")
+
+		userID := book.UserID
+		carID := book.CarID
+		log.Print("Car booking for edit:", carID, userID, bookingID, startDateTime, endDateTime, startDate, startTime, endDate, endTime)
+
+		car, _ := database.GetSpecificCar(carID)
+		carImage := car.ImageLink
+		carName := car.Name
+
+		var userName string
+		userList, err := database.GetLoginUser()
+		if err != nil {
+			log.Println("Retrieve Data Error:", err)
+			return
+		}
+		for _, findUser := range userList {
+			if findUser.Id == userID {
+				userName = findUser.Name
+				break
+			}
+		}
+
+		tmpl, err := template.ParseFiles("Pages/VehicleManage/editbookingpage.html", "Pages/UserManage/navbarmember.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.ExecuteTemplate(w, "editbookingpage.html", map[string]interface{}{
+			"UserName":  userName,
+			"StartDate": startDate,
+			"StartTime": startTime,
+			"EndDate":   endDate,
+			"EndTime":   endTime,
+			"CarName":   carName,
+			"ImageLink": carImage,
+			"CarID":     carID,
+			"BookingID": bookingID,
+		})
+		if err != nil {
+			log.Println("Error with server nooooo: ", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+	if r.Method == http.MethodPost {
+		bookingIDstr := r.FormValue("bookingID")
+		log.Println("Received bookingID:", bookingIDstr)
+		carIDstr := r.FormValue("carID")
+		log.Print("CarID for method post: ", carIDstr)
+		carName := r.FormValue("carName")
+		startDate := r.FormValue("startDate")
+		endDate := r.FormValue("endDate")
+		startTime := r.FormValue("pickupTime")
+		endTime := r.FormValue("dropoffTime")
+
+		bookingID, err := strconv.Atoi(bookingIDstr)
+		if err != nil {
+			http.Error(w, "Invalid booking ID", http.StatusBadRequest)
+			return
+		}
+
+		carID, err := strconv.Atoi(carIDstr)
+		if err != nil {
+			log.Println("Error converting carID to integer:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		book, _ := database.GetBookingByID(bookingID)
+		userID := book.UserID
+
+		log.Print("Car booking for update:", carID, userID, bookingID, startDate, startTime, endDate, endTime)
+
+		startDateTimeStr := startDate + " " + startTime
+		endDateTimeStr := endDate + " " + endTime
+
+		startDateTime, err := time.Parse("2006-01-02 15:04", startDateTimeStr)
+		if err != nil {
+			log.Println("Error parsing start date and time:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		endDateTime, err := time.Parse("2006-01-02 15:04", endDateTimeStr)
+		if err != nil {
+			log.Println("Error parsing end date and time:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		car, _ := database.GetSpecificCar(carID)
+		priceHour := car.PriceHour
+
+		totalHours := endDateTime.Sub(startDateTime).Hours()
+		totalCost := totalHours * float64(priceHour)
+
+		err = database.UpdateCarBook(userID, carName, carID, startDateTime, endDateTime, totalHours, totalCost, "Booked", bookingID)
+		if err != nil {
+			log.Println("Error updating booking:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		return
+	}
+}

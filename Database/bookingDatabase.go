@@ -46,14 +46,31 @@ func GetBookingByID(bookingID int) (CarsBooking, error) {
 		return CarsBooking{}, err
 	}
 	defer db.Close()
+
 	query := "SELECT * FROM CarsBooking WHERE ID = ?"
 	row := db.QueryRow(query, bookingID)
 
 	var book CarsBooking
-	if err := row.Scan(&book.Id, &book.UserID, &book.CarName, &book.CarID, &book.StartDate, &book.EndDate, &book.TotalHours, &book.TotalCost, &book.Status); err != nil {
+	var startDateBytes, endDateBytes []byte
+
+	if err := row.Scan(&book.Id, &book.UserID, &book.CarName, &book.CarID, &startDateBytes, &endDateBytes, &book.TotalHours, &book.TotalCost, &book.Status); err != nil {
 		log.Println("Row scan error:", err)
 		return CarsBooking{}, err
 	}
+
+	startDateTime, err := time.Parse("2006-01-02 15:04:05", string(startDateBytes))
+	if err != nil {
+		log.Println("Error parsing StartDate:", err)
+		return CarsBooking{}, err
+	}
+	book.StartDate = startDateTime
+
+	endDateTime, err := time.Parse("2006-01-02 15:04:05", string(endDateBytes))
+	if err != nil {
+		log.Println("Error parsing EndDate:", err)
+		return CarsBooking{}, err
+	}
+	book.EndDate = endDateTime
 
 	return book, nil
 }
@@ -205,4 +222,19 @@ func GetCarBook(carID int) ([]CarsBooking, error) {
 	}
 
 	return bookList, nil
+}
+
+func UpdateCarBook(userID int, carName string, carID int, startDateTime time.Time, endDateTime time.Time, totalHours float64, totalCost float64, status string, bookID int) error {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return err
+	}
+	updateQuery := "UPDATE CarsBooking SET UserID = ?, CarName = ?, CarID = ?, StartDate = ?, EndDate = ?, TotalHours = ?, TotalCost = ?, Status = ? WHERE ID = ?"
+	_, err = db.Exec(updateQuery, userID, carName, carID, startDateTime, endDateTime, totalHours, totalCost, status, bookID)
+	if err != nil {
+		log.Println("Database update error:", err)
+		return err
+	}
+	return nil
 }

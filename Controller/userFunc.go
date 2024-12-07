@@ -319,6 +319,7 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		UserBooking int
 		BookList    []database.CarsBooking
 		TodayDate   time.Time
+		UserID      int
 	}{
 		UserName:    userName,
 		UserEmail:   userEmail,
@@ -326,6 +327,7 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		UserBooking: userBooking,
 		BookList:    bookList,
 		TodayDate:   todayDate,
+		UserID:      userID,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

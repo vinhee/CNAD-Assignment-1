@@ -102,7 +102,7 @@
                   {{end}}
               </td>
               <td>
-                  <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn">
+                  <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn" onclick="window.location.href='/editbooking?bookingID={{.Id}}'">
                       Edit
                   </button>
                   <form action="/cancelbooking" method="POST" style="display:inline;">

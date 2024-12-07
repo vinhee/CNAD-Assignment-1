@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/bookcar", Controller.BookCar)
 	http.HandleFunc("/confirmbooking", Controller.ConfirmBooking)
 	http.HandleFunc("/cancelbooking", Controller.CancelBooking)
+	http.HandleFunc("/editbooking", Controller.EditBooking)
 
 	http.ListenAndServe(":5000", nil)
 }
