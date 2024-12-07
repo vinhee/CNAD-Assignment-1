@@ -18,57 +18,102 @@
   </style>
 </head>
 {{template "navMember" .}}
-<section class="vh-100" style="background-color: #f4f5f7;">
+<div class="container">
+  <section style="background-color: #f4f5f7; margin-top:150px;">
     <div class="container py-2 h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col col-lg-8 mb-4 mb-lg-0">
-          <div class="card mb-3" style="border-radius: .5rem;">
-            <div class="row g-0">
-              <div class="col-md-3 gradient-custom text-center"
-                style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
-                <i class="fa-solid fa-user img-fluid mt-5 mb-2" style="font-size: 80px;"></i>
-                <h5 class="label">{{.UserName}}</h5>
-                <h5 class="label my-2">{{.UserEmail}}</h5>
-                <a class="nav-link pe-3" href="/editprofile">
-                    <i class="far fa-edit mb-5 label"></i> Edit
-                </a>
-              </div>
-              <div class="col-md-8">
-                <div class="card-body p-4">
-                  <h6 class="label"><b>Details</b></h6>
-                  <hr class="mt-0 mb-4">
-                  <div class="row pt-1">
-                    <div class="col-6 mb-3">
-                      <h6 class="label"><b>Membership Tier</b></h6>
-                      <p class="text-muted label">{{.UserTier}}</p>
-                    </div>
-                    <div class="col-6 mb-3">
-                      <h6 class="label"><b>Available Bookings</b></h6>
-                      <p class="text-muted label">{{.UserBooking}}</p>
-                    </div>
-                  </div>
-                  <h6 class="label"><b>Rental History</b></h6>
-                  <hr class="mt-0 mb-4">
-                  {{if gt (len .BookList) 0}}
-                  <div class="card">
-                    {{range .BookList}} 
-                    <div class="card-body">
-                      <h5 class="card-title">{{.CarName}}</h5>
-                      <p class="card-text">From: {{.StartDate}}</p></p>
-                      <p class="card-text">To: {{.EndDate}}</p></p>
-                    </div>
-                  </div>
-                    {{end}}
-                {{else}}
-                    <h4><b>No rental history, book now!</b></h4>
-                {{end}}
-              </div>
-              </div>
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-lg-8 mb-4 mb-lg-0">
+                <div class="card mb-3" style="border-radius: .5rem;">
+                    <div class="row g-0">
+                        <div class="col-md-3 gradient-custom text-center"
+                            style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                            <i class="fa-solid fa-user img-fluid mt-5 mb-2" style="font-size: 80px;"></i>
+                            <h5 class="label">{{.UserName}}</h5>
+                            <h5 class="label my-2">{{.UserEmail}}</h5>
+                            <a class="nav-link pe-3" href="/editprofile">
+                                <i class="far fa-edit mb-5 label"></i> Edit
+                            </a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <h6 class="label"><b>Details</b></h6>
+                                <hr class="mt-0 mb-4">
+                                <div class="row pt-1">
+                                    <div class="col-6 mb-3">
+                                        <h6 class="label"><b>Membership Tier</b></h6>
+                                        <p class="text-muted label">{{.UserTier}}</p>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <h6 class="label"><b>Available Bookings</b></h6>
+                                        <p class="text-muted label">{{.UserBooking}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
+    </div> 
   </section>
-</html>
+
+  <h2 class="label">Rental History</h2>
+  <table class="table align-middle mb-0 bg-white label">
+      <thead class="bg-light">
+          {{if gt (len .BookList) 0}}
+          <tr>
+              <th>Car Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+          </tr>
+      </thead>
+      <tbody>
+          {{range .BookList}} 
+          <tr>
+              <td>
+                  <div class="ms-3">
+                      <p class="fw-bold mb-1 label">{{.CarName}}</p>
+                  </div>
+              </td>
+              <td>
+                  <p class="fw-normal mb-1">{{.StartDate}}</p>
+              </td>
+              <td>
+                  <p class="fw-normal mb-1">{{.EndDate}}</p>
+              </td>
+              <td>
+                  {{if eq .Status "Booked"}}
+                  <span class="badge badge-primary rounded-pill d-inline">{{.Status}}</span>
+                  {{else if eq .Status "In Process"}}
+                  <span class="badge badge-warning rounded-pill d-inline">{{.Status}}</span>
+                  {{else if eq .Status "Completed"}}
+                  <span class="badge badge-success rounded-pill d-inline">{{.Status}}</span>
+                  {{else}}
+                  <span class="badge badge-danger rounded-pill d-inline">{{.Status}}</span>
+                  {{end}}
+              </td>
+              <td>
+                  <button type="button" class="btn btn-link btn-sm btn-rounded label">
+                      Edit
+                  </button>
+                  <button type="button" class="btn btn-link btn-sm btn-rounded label">
+                      Cancel
+                  </button>
+              </td>
+        </tr>
+      {{end}}
+      {{else}}
+      <tr>
+          <td colspan="5" class="text-center">
+              <p class="fw-normal mb-1 label">No booking history available.</p>
+          </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  </div>
+</body>
+</html> 
 {{end}}
