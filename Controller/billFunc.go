@@ -26,6 +26,7 @@ func DisplayBill(w http.ResponseWriter, r *http.Request) {
 	book, err := database.GetBookingByID(bookingID)
 	if err != nil {
 		log.Println("Error retrieving booking:", err)
+
 		http.Error(w, "Booking not found", http.StatusNotFound)
 		return
 	}
@@ -73,6 +74,21 @@ func DisplayBill(w http.ResponseWriter, r *http.Request) {
 
 	memberDiscStr := fmt.Sprintf("%s = %.2f", userTier, memberDisc)
 
+	var bill database.Billing
+	bill.UserID = userID
+	bill.CarID = carID
+	bill.BookingID = bookingID
+	bill.StartDate = startDateTime
+	bill.EndDate = endDateTime
+	bill.PriceHour = priceHour // rounds number to 2 d.p.
+	bill.TotalCost = roundNum(totalCost, 2)
+	bill.Status = "Unpaid"
+
+	billID, err := database.InsertBill(bill) // insert new bill'
+	if err != nil {
+		log.Print("Error adding new bill: ", err)
+	}
+
 	tmpl, err := template.ParseFiles("Pages/BillManage/paymentpage.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -90,10 +106,94 @@ func DisplayBill(w http.ResponseWriter, r *http.Request) {
 		"CostString":    costString,
 		"MemberDisc":    memberDiscStr,
 		"TotalCost":     totalCoststr,
+		"BillID":        billID,
 	})
 	if err != nil {
 		log.Println("Error with server in Display Bill: ", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+}
+
+func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
+	billIDstr := r.URL.Query().Get("billID")
+	billID, err := strconv.Atoi(billIDstr)
+	if err != nil {
+		http.Error(w, "Invalid billing ID", http.StatusBadRequest)
+		return
+	}
+
+	bill, err := database.GetBill(billID)
+	carID := bill.CarID
+	userID := bill.UserID
+	startDateTime := bill.StartDate
+	endDateTime := bill.EndDate
+	bookingID := bill.BookingID
+	log.Print("Booking ID for confirm: ", bookingID)
+
+	formattedStartDateTime := startDateTime.Format("2006-01-02")
+	formattedEndDateTime := endDateTime.Format("2006-01-02")
+
+	totalCost := bill.TotalCost
+
+	car, _ := database.GetSpecificCar(carID)
+	carImage := car.ImageLink
+	carName := car.Name
+
+	var userName string
+	userList, err := database.GetLoginUser()
+	if err != nil {
+		log.Println("Retrieve Data Error:", err)
+		return
+	}
+	for _, findUser := range userList {
+		if findUser.Id == userID {
+			userName = findUser.Name
+			break
+		}
+	}
+
+	tmpl, err := template.ParseFiles("Pages/BillManage/makepaymentpage.html", "Pages/UserManage/navbarmember.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "makepaymentpage.html", map[string]interface{}{
+		"UserName":  userName,
+		"StartDate": formattedStartDateTime,
+		"EndDate":   formattedEndDateTime,
+		"CarName":   carName,
+		"ImageLink": carImage,
+		"TotalCost": totalCost,
+		"BillID":    billID,
+		"BookingID": bookingID,
+	})
+	if err != nil {
+		log.Println("Error with server in Display Bill: ", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func UpdatePaymentCard(w http.ResponseWriter, r *http.Request) {
+	billIDstr := r.FormValue("billID")
+	billID, err := strconv.Atoi(billIDstr)
+	if err != nil {
+		http.Error(w, "Invalid billing ID", http.StatusBadRequest)
+		return
+	}
+	bookIDstr := r.FormValue("bookingID")
+	bookID, err := strconv.Atoi(bookIDstr)
+	if err != nil {
+		http.Error(w, "Invalid booking ID", http.StatusBadRequest)
+		log.Print("Booking ID problem: ", bookID)
+		return
+	}
+	userCard := r.FormValue("userCard")
+
+	database.UpdateBillCard(billID, userCard)
+	database.UpdatePaid(bookID)
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

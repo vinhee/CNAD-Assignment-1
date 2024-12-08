@@ -23,7 +23,8 @@ func main() {
 
 	// Billing
 	http.HandleFunc("/payment", Controller.DisplayBill)
-	// http.HandleFunc("/makepayment", Controller.MakePayment)
+	http.HandleFunc("/makepayment", Controller.ConfirmPayment)
+	http.HandleFunc("/updatepayment", Controller.UpdatePaymentCard)
 
 	http.ListenAndServe(":5000", nil)
 }

@@ -104,7 +104,9 @@
                   </div>
 
                   <div class="d-flex justify-content-end pt-3">
-                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="/makepayment?bookingID">Go to Payment</button>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn" onclick="window.location.href='/makepayment?billID={{.BillID}}'">
+                        Proceed to Payment
+                    </button>
                   </div>
                 </form>
                 </div>

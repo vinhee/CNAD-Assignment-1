@@ -39,57 +39,91 @@
         color: #232b47;
         font-family: 'Oswald', sans-serif;
     }
+    .input-border {
+        border: 2px solid #ccc; /* Change this color as needed */
+    }
 </style>
 </head>
 {{template "navMember" .}}
-<section style="background-color: #ffffff;">
-    <div class="container py-5">
-      <div class="row d-flex justify-content-center">
-        <div class="col-md-9 col-lg-7 col-xl-5">
-          <div class="card">
-            <img src="{{.ImageLink}}"
-              class="card-img-top"/>
-            <div class="card-body">
-              <div class="card-title d-flex justify-content-between mb-0">
-                <p class="text-muted mb-0">Booking for {{.CarName}}</p>
-                <p class="mb-0">{{.TotalCost}}</p>
+<section class="h-100 bg-light" style="margin-top:60px;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col">
+          <div class="card card-registration my-4">
+            <div class="row g-0">
+              <div class="col-xl-6 d-none d-xl-block">
+                <img src="{{.ImageLink}}" class="img-fluid"
+                  style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem; height:520px;" />
               </div>
-              <p class="text-muted mb-0">{{.StartDate}} to</p>
-              <p class="text-muted mb-0">{{.EndDate}}</p>
+              <div class="col-xl-6">
+                <div class="card-body p-md-5 text-black">
+                  <h3 class="mb-3 text-uppercase label">Make Payment</h3>
+  
+                <form method="POST" action="/updatepayment">
+                <input type="hidden" name="bookingID" value="{{.BookingID}}">
+                <input type="hidden" name="billID" value="{{.BillID}}">
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <div data-mdb-input-init class="form-outline">
+                        <label for="userName" class="label">Name</label>
+                        <input type="text" id="userName" name="userName" value="{{.UserName}}" class="form-control form-control-lg label" readonly />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="carName" class="label">Name of Car</label>
+                    <input type="text" id="carName" name="carName" value="{{.CarName}}" class="form-control form-control-lg label" readonly/>
+                  </div>
+
+                    <div class="col-md-6 mb-4">
+                      <label for="totalCost" class="label">Total Cost</label>
+                      <input type="text" id="totalCost" name="totalCost" value="${{.TotalCost}}" class="form-control label" readonly>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="startDateTime" class="label">Start Date</label>
+                      <input type="date" id="startDateTime" name="startDateTime" value="{{.StartDate}}" class="form-control label" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                      <label for="endDateTime" class="label">End Date</label>
+                      <input type="date" id="endDateTime" name="endDateTime" value="{{.EndDate}}" class="form-control label" readonly>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="userCard" class="label">Card Number</label>
+                    <input type="text" id="userCard" name="userCard" class="form-control label" required>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-9 mb-4">
+                        <label for="exdate" class="label">Expiry Date</label>
+                        <input type="text" id="exdate" name="exdate" class="form-control label" required>
+                    </div>
+
+                    <div class="col-md-3 mb-4">
+                        <label for="cvv" class="label">CVV</label>
+                        <input type="text" id="cvv" name="cvv" class="form-control label" required>
+                    </div>
+                </div>
+
+                  <div class="d-flex justify-content-end pt-3">
+                    <button type="submit" class="btn btn-link btn-sm btn-rounded clickBtn">
+                        Confirm Payment
+                    </button>
+                  </div>
+                </form>
+                </div>
+              </div>
             </div>
-            <form method="POST">
-                <div class="rounded-bottom bg-body-tertiary">
-                <div class="card-body">
-                    <p class="mb-4">Your payment details</p>
-    
-                    <div data-mdb-input-init class="form-outline mb-3">
-                    <input type="text" id="formControlLgXM8" class="form-control"
-                        placeholder="1234 5678 1234 5678" />
-                    <label class="form-label" for="formControlLgXM8">Card Number</label>
-                    </div>
-    
-                    <div class="row mb-3">
-                    <div class="col-6">
-                        <div data-mdb-input-init class="form-outline">
-                        <input type="password" id="formControlLgExpk8" class="form-control"
-                            placeholder="MM/YYYY" />
-                        <label class="form-label" for="formControlLgExpk8">Expire</label>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div data-mdb-input-init class="form-outline">
-                        <input type="password" id="formControlLgcvv8" class="form-control" placeholder="Cvv" />
-                        <label class="form-label" for="formControlLgcvv8">Cvv</label>
-                        </div>
-                    </div>
-                    </div>
-    
-                    <button data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-block">Confirm Payment</button>
-                </div>
-                </div>
-            </form>
           </div>
         </div>
       </div>
     </div>
   </section>
+</html>
