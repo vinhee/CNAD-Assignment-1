@@ -4,6 +4,8 @@
 ![Architecture](Images/CNADArchitecture.png)
 
 ## Design Consideration of Microservice
+bookingDatabase = reservationDatabase
+
 I split my functions into MVC format, where Controller contains all the functions that interact with the database and UI. Database contains all the data needed for the controller, which is the same for the UI as well. All my different controllers (User, Vehicle, Billing) are separated as well, this is to avoid confusion and making it more organised. The same format has been done for my database and UI as well. My main page containing the handlers for the different pages have been grouped up according to the controllers too.
 
 ![Microservice](Images/Microservice.png)
