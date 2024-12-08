@@ -315,6 +315,16 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	billList, err := database.GetBillByUser(userID)
+	currentTime := time.Now()
+	for _, checkbook := range bookList {
+		if checkbook.StartDate.Before(currentTime) || checkbook.StartDate.Equal(currentTime) {
+			database.UpdateInProgress(checkbook.Id)
+			return
+		} else if checkbook.EndDate.Before(currentTime) {
+			database.UpdateComplete(checkbook.Id)
+			return
+		}
+	}
 
 	todayDate := time.Now()
 
