@@ -83,6 +83,7 @@ func DisplayBill(w http.ResponseWriter, r *http.Request) {
 	bill.PriceHour = priceHour // rounds number to 2 d.p.
 	bill.TotalCost = roundNum(totalCost, 2)
 	bill.Status = "Unpaid"
+	bill.CarName = carName
 
 	billID, err := database.InsertBill(bill) // insert new bill'
 	if err != nil {
@@ -129,6 +130,7 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 	startDateTime := bill.StartDate
 	endDateTime := bill.EndDate
 	bookingID := bill.BookingID
+	carName := bill.CarName
 	log.Print("Booking ID for confirm: ", bookingID)
 
 	formattedStartDateTime := startDateTime.Format("2006-01-02")
@@ -138,7 +140,6 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 
 	car, _ := database.GetSpecificCar(carID)
 	carImage := car.ImageLink
-	carName := car.Name
 
 	var userName string
 	userList, err := database.GetLoginUser()

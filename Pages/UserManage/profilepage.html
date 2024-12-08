@@ -128,6 +128,49 @@
       {{end}}
     </tbody>
   </table>
+  <h2 class="label mt-4" style="text-align:center;" >Billing History</h2>
+  <table class="table align-middle mb-0 bg-white label">
+      <thead class="bg-light">
+          {{if gt (len .BillList) 0}}
+          <tr>
+              <th>Car Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Payment Method</th>
+              <th>Total Paid</th>
+          </tr>
+      </thead>
+      <tbody>
+          {{range .BillList}} 
+          <tr>
+              <td>
+                  <div class="ms-3">
+                      <p class="fw-bold mb-1 label">{{.CarName}}</p>
+                  </div>
+              </td>
+              <td>
+                  <p class="fw-normal mb-1">{{.StartDate}}</p>
+              </td>
+              <td>
+                  <p class="fw-normal mb-1">{{.EndDate}}</p>
+              </td>
+              <td>
+                <p class="fw-normal mb-1">Paid using: {{maskCardNumber .UserCard}}</p>
+              </td>
+              <td>
+                <p class="fw-normal mb-1">${{.TotalCost}}</p>
+              </td>
+        </tr>
+      {{end}}
+      {{else}}
+      <tr>
+          <td colspan="5" class="text-center">
+              <p class="fw-normal mb-1 label">No billing history available.</p>
+          </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
   </div>
 </body>
 </html> 

@@ -283,7 +283,11 @@ func RegSuccess(w http.ResponseWriter, successMsg string, errMsg string) {
 }
 
 func ProfilePage(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("Pages/UserManage/profilepage.html", "Pages/UserManage/navbarmember.html")
+	funcMap := template.FuncMap{
+		"maskCardNumber": maskCardNumber,
+	}
+
+	tmpl, err := template.New("profile").Funcs(funcMap).ParseFiles("Pages/UserManage/profilepage.html", "Pages/UserManage/navbarmember.html")
 	if err != nil {
 		log.Println("Error parsing template:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -310,6 +314,8 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error getting user booking:", err)
 	}
 
+	billList, err := database.GetBillByUser(userID)
+
 	todayDate := time.Now()
 
 	data := struct {
@@ -318,6 +324,7 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		UserTier    string
 		UserBooking int
 		BookList    []database.CarsBooking
+		BillList    []database.Billing
 		TodayDate   time.Time
 		UserID      int
 	}{
@@ -326,6 +333,7 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		UserTier:    userTier,
 		UserBooking: userBooking,
 		BookList:    bookList,
+		BillList:    billList,
 		TodayDate:   todayDate,
 		UserID:      userID,
 	}
@@ -336,6 +344,13 @@ func ProfilePage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 
+}
+
+func maskCardNumber(cardNumber string) string {
+	if len(cardNumber) < 4 {
+		return cardNumber
+	}
+	return "**** **** **** " + cardNumber[len(cardNumber)-4:]
 }
 
 func EditProfile(w http.ResponseWriter, r *http.Request) {

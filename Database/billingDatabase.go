@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -13,6 +14,7 @@ type Billing struct {
 	UserID    int       `json:"userid"`
 	CarID     int       `json:"carid"`
 	BookingID int       `json:"bookid"`
+	CarName   string    `json:"carname"`
 	StartDate time.Time `json:"startdate"`
 	EndDate   time.Time `json:"enddate"`
 	PriceHour int       `json:"priceHour"`
@@ -31,8 +33,8 @@ func InsertBill(bill Billing) (billID int64, err error) {
 	}
 	defer db.Close()
 
-	insertQuery := "INSERT INTO Billing (UserID, CarID, BookingID, StartDate, EndDate, PriceHour, TotalCost, UserCard, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := db.Exec(insertQuery, bill.UserID, bill.CarID, bill.BookingID, bill.StartDate, bill.EndDate, bill.PriceHour, bill.TotalCost, "", bill.Status)
+	insertQuery := "INSERT INTO Billing (UserID, CarID, BookingID, CarName, StartDate, EndDate, PriceHour, TotalCost, UserCard, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := db.Exec(insertQuery, bill.UserID, bill.CarID, bill.BookingID, bill.CarName, bill.StartDate, bill.EndDate, bill.PriceHour, bill.TotalCost, "", bill.Status)
 	if err != nil {
 		log.Println("Database insert error:", err)
 		return 0, err
@@ -61,7 +63,7 @@ func GetBill(billID int) (Billing, error) {
 	var bill Billing
 	var startDateBytes, endDateBytes []byte
 
-	if err := row.Scan(&bill.Id, &bill.UserID, &bill.CarID, &bill.BookingID, &startDateBytes, &endDateBytes, &bill.PriceHour, &bill.TotalCost, &bill.UserCard, &bill.Status); err != nil {
+	if err := row.Scan(&bill.Id, &bill.UserID, &bill.CarID, &bill.BookingID, &bill.CarName, &startDateBytes, &endDateBytes, &bill.PriceHour, &bill.TotalCost, &bill.UserCard, &bill.Status); err != nil {
 		log.Println("Row scan error:", err)
 		return Billing{}, err
 	}
@@ -96,4 +98,49 @@ func UpdateBillCard(billID int, userCard string) error {
 		return err
 	}
 	return nil
+}
+
+func GetBillByUser(userID int) ([]Billing, error) {
+	db, err := GetDB()
+	if err != nil {
+		log.Println("Unable to connect to function:", err)
+		return nil, err
+	}
+	defer db.Close()
+	query := "SELECT * FROM Billing WHERE UserID = ?"
+	results, err := db.Query(query, userID)
+	if err != nil {
+		log.Println("Database query error:", err)
+		return nil, err
+	}
+	defer results.Close()
+
+	billList := []Billing{}
+	for results.Next() {
+		var bill Billing
+		var startDate, endDate []byte
+		if err := results.Scan(&bill.Id, &bill.UserID, &bill.CarID, &bill.BookingID, &bill.CarName, &startDate, &endDate, &bill.PriceHour, &bill.TotalCost, &bill.UserCard, &bill.Status); err != nil {
+			log.Println("Row scan error for billing db:", err)
+			return nil, err
+		}
+		bill.StartDate, err = parseDateTime(startDate)
+		if err != nil {
+			log.Println("Error parsing StartDate:", err)
+			return nil, err
+		}
+
+		bill.EndDate, err = parseDateTime(endDate)
+		if err != nil {
+			log.Println("Error parsing EndDate:", err)
+			return nil, err
+		}
+		billList = append(billList, bill)
+	}
+
+	for _, bill := range billList {
+		fmt.Printf("ID: %d, UserID: %d, CarID: %d, BookID: %d, CarName: %s, StartDate: %s, EndDate: %s, PriceHour: %d, TotalCost: %.2f, UserCard: %s, Status: %s\n",
+			bill.Id, bill.UserID, bill.CarID, bill.BookingID, bill.CarName, bill.StartDate, bill.EndDate, bill.PriceHour, bill.TotalCost, bill.UserCard, bill.Status)
+	}
+
+	return billList, nil
 }
