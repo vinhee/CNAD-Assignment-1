@@ -117,61 +117,33 @@ func BookCar(w http.ResponseWriter, r *http.Request) {
 	userTierNum := tierNum[userTier]
 	carTierNum := tierNum[car.MemberTier]
 
-	if userTierNum >= carTierNum {
-		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	var errMsg string
 
-		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
-			"Cars":         car,
-			"UserName":     userName,
-			"Today":        today,
-			"BlockedDates": string(blockedDatesJSON),
-		})
-		if err != nil {
-			log.Println("Error with server: ", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
+	if userTierNum >= carTierNum {
+		if userBook == 0 {
+			errMsg = "You have exceeded your booking limits!"
 		}
-	} else if userTierNum < carTierNum {
-		errMsg := "Your membership tier does not meet the minimum membership tier"
-		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
-			"Cars":     car,
-			"UserName": userName,
-			"Today":    today,
-			"ErrMsg":   errMsg,
-		})
-		if err != nil {
-			log.Println("Error with server: ", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+	} else {
+		errMsg = "Your membership tier does not meet the minimum membership tier"
 	}
-	if userBook == 0 {
-		errBookMsg := "You have exceeded your booking limits!"
-		tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
-			"Cars":       car,
-			"UserName":   userName,
-			"Today":      today,
-			"ErrBookMsg": errBookMsg,
-		})
-		if err != nil {
-			log.Println("Error with server: ", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+
+	tmpl, err := template.ParseFiles("Pages/VehicleManage/bookcarpage.html", "Pages/UserManage/navbarmember.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "bookcarpage.html", map[string]interface{}{
+		"Cars":         car,
+		"UserName":     userName,
+		"Today":        today,
+		"ErrMsg":       errMsg,
+		"BlockedDates": string(blockedDatesJSON),
+	})
+	if err != nil {
+		log.Println("Error with server: ", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 }
 
