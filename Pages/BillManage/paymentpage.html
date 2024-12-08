@@ -54,9 +54,11 @@
               </div>
               <div class="col-xl-6">
                 <div class="card-body p-md-5 text-black">
-                  <h3 class="mb-3 text-uppercase label">Confirm your Booking!</h3>
+                  <h3 class="mb-3 text-uppercase label">Calculation of Total Bill:</h3>
   
-                <form method="POST" action="/profile">
+                <form method="POST" action="/makepayment">
+                    <input type="hidden" name="carID" value="{{.CarID}}">
+                    <input type="hidden" name="bookingID" value="{{.BookingID}}">
                   <div class="row">
                     <div class="col-md-6 mb-4">
                       <div data-mdb-input-init class="form-outline">
@@ -84,13 +86,25 @@
                     </div>
                   </div>
 
-                    <div>
-                    <label for="totalCost" class="label">Estimated Total Cost:</label>
-                    <input type="text" id="totalCost" name="totalCost" value="{{.TotalCostString}}" class="form-control label" readonly>
+                  <div class="row">
+                    <div class="col-md-9 mb-4">
+                        <label for="totalCost" class="label">Cost</label>
+                        <input type="text" id="Cost" name="Cost" value="{{.CostString}}" class="form-control label" readonly>
+                    </div>
+
+                    <div class="col-md-3 mb-4">
+                        <label for="endDateTime" class="label">Member Discount</label>
+                        <input type="text" id="memberTierDisc" name="memberTierDisc" value="{{.MemberDisc}}" class="form-control label" readonly>
+                    </div>
+                </div>
+
+                  <div>
+                    <label for="totalCost" class="label">Total Bill:</label>
+                    <input type="text" id="totalCost" name="totalCost" value="{{.TotalCost}}" class="form-control label" readonly>
                   </div>
 
                   <div class="d-flex justify-content-end pt-3">
-                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="/profile">Confirm Booking</button>
+                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2" action="/makepayment?bookingID">Go to Payment</button>
                   </div>
                 </form>
                 </div>

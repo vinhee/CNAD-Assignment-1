@@ -106,6 +106,9 @@
                     <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn" onclick="window.location.href='/editbooking?bookingID={{.Id}}'">
                         Edit
                     </button>
+                    <button type="button" class="btn btn-link btn-sm btn-rounded clickBtn" onclick="window.location.href='/payment?bookingID={{.Id}}'">
+                        Payment
+                    </button>
                     <form action="/cancelbooking" method="POST" style="display:inline;">
                         <input type="hidden" name="bookingID" value="{{.Id}}">
                         <button type="submit" class="btn btn-link btn-sm btn-rounded clickBtn label">

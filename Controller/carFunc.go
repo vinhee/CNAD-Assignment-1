@@ -348,7 +348,7 @@ func EditBooking(w http.ResponseWriter, r *http.Request) {
 			"BookingID": bookingID,
 		})
 		if err != nil {
-			log.Println("Error with server nooooo: ", err)
+			log.Println("Error with server with Edit Booking: ", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
