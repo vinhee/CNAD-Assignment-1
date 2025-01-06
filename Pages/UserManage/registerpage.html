@@ -70,7 +70,7 @@
 
 	<div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-7 pt-xl-0 mt-xl-n5">
 
-		<form style="width: 23rem;" method="POST" action="/register">
+		<form style="width: 23rem;" method="POST" action="http://localhost:5000/register">
 
 		<h3 class="fw-normal mb-3 pb-1" style="letter-spacing: 1px; font-family: Oswald, sans serif;">Register</h3>
 		{{if .SuccessMsg}}
@@ -95,10 +95,10 @@
 		</div>
 
 		<div class="pt-1 mb-4 loginLine">
-			<button action="/registerpage" method="POST" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="submit">Register</button>
+			<button action="http://localhost:5000/registerpage" method="POST" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-lg btn-block" style="background-color:#232b47" type="submit">Register</button>
 		</div>
 
-		<p class="loginLine">Have an account? <a href="/login" class="link-info">Login here</a></p>
+		<p class="loginLine">Have an account? <a href="http://localhost:5000/login" class="link-info">Login here</a></p>
 
 		</form>
 

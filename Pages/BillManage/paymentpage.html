@@ -56,7 +56,7 @@
                 <div class="card-body p-md-5 text-black">
                   <h3 class="mb-3 text-uppercase label">Calculation of Total Bill:</h3>
   
-                <form method="POST" action="/makepayment">
+                <form method="POST" action="http://localhost:5000/makepayment">
                     <input type="hidden" name="carID" value="{{.CarID}}">
                     <input type="hidden" name="bookingID" value="{{.BookingID}}">
                   <div class="row">

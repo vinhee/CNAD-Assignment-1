@@ -44,7 +44,7 @@
               <div class="col-xl-6">
                 <div class="card-body p-md-5 text-black">
                   <h3 class="mb-3 text-uppercase label">Book Car Form</h3>
-                    <form method="POST" action="/confirmbooking">
+                    <form method="POST" action="http://localhost:5000/confirmbooking">
                       {{if .ErrMsg}}
                       <div data-mdb-input-init class="form-outline mb-4">
                         <h5 class="label" style="color:red">{{.ErrMsg}}</h5>
@@ -102,7 +102,7 @@
                   </div>
                     {{else}}
                     <div class="d-flex justify-content-end pt-3">
-                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2"  action="/bookcar">Book Car</button>
+                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn clickBtn ms-2"  action="http://localhost:5000/bookcar">Book Car</button>
                     </div>
                     {{end}}
                     </form>
